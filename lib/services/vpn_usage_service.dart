@@ -60,9 +60,8 @@ class VpnUsageService {
 
       // Move to the next day
       remainingSeconds -= durationForCurrentDay;
-      currentDate = currentDate.add(Duration(days: 1)).startOfDay();
+      currentDate = currentDate.add(const Duration(days: 1)).startOfDay();
     }
-    print("saveVpnUsageData $currentUsage");
     // Save updated usage data
     await saveVpnUsageData(index, currentUsage);
     storeTimeStart();

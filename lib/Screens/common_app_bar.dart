@@ -7,6 +7,7 @@ class CommonAppBar extends StatefulWidget implements PreferredSizeWidget {
   const CommonAppBar({super.key, required this.scaffoldKey});
 
   @override
+  // ignore: library_private_types_in_public_api
   _CommonAppBarState createState() => _CommonAppBarState();
 
   @override

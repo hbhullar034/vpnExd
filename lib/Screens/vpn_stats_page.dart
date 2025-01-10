@@ -8,12 +8,12 @@ class VpnStatTile<T> extends StatelessWidget {
   final Color iconColor;
 
   const VpnStatTile({
-    Key? key,
+    super.key,
     required this.label,
     required this.valueFormatter,
     required this.icon,
     required this.iconColor
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

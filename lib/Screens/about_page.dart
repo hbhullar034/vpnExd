@@ -4,7 +4,7 @@ import 'common_app_bar.dart';
 import 'common_app_bar_with_drawer.dart';
 
 class AboutPage extends StatefulWidget {
-   AboutPage({Key? key}) : super(key: key);
+   const AboutPage({super.key});
 
   @override
   State<AboutPage> createState() => _AboutPageState();
@@ -105,7 +105,7 @@ Future<void> _loadAppVersion() async {
             GestureDetector(
               onTap: () {
                 // Replace with your privacy policy URL
-                print("Privacy Policy clicked");
+                debugPrint("Privacy Policy clicked");
               },
               child: const Text(
                 "Read our Privacy Policy",

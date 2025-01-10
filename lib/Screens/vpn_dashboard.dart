@@ -4,12 +4,13 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:openvpn_app/Screens/graph.dart';
+import '../services/network_service.dart';
 import 'common_app_bar.dart';
 import '../constants/colors.dart';
 import 'confirmation_dialog.dart';
 import 'common_app_bar_with_drawer.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../models/VpnStatusModel.dart';
+import '../models/vpn_status_model.dart';
 import '../models/vpn_data_model.dart';
 import 'package:http/http.dart' as http;
 import '../services/vpn_service.dart';
@@ -42,6 +43,8 @@ class _VPNPageState extends State<VPNPage> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   String selectedLocation = "USA - Florida";
   final ScrollController _scrollController = ScrollController();
+  final NetworkService _networkService = NetworkService();
+  bool _isOffline = false;
   double _scaleFactor = 1.0;
   double scaleHeightFirst = 120; //  height top of Connected timer
   double scaleHeightSecond = 20; // height top of circle
@@ -57,7 +60,6 @@ class _VPNPageState extends State<VPNPage> {
   bool isDropdownOpen = false;
   String? ipAddress = '';
   String? cachedIpAddress; //store ip address
-
   
   @override
   void initState() {
@@ -66,6 +68,7 @@ class _VPNPageState extends State<VPNPage> {
     checkIndex();
     _loadVpnData();
     getIp();
+    _startMonitoring();
   }
 
   @override
@@ -122,7 +125,40 @@ class _VPNPageState extends State<VPNPage> {
     connectingIndex = await getConnectingIndex();
     //selectedIndex = connectingIndex;
   }
-
+   void _startMonitoring() async {
+    // Start monitoring network status
+    await _networkService.startMonitoring(_handleNetworkStatusChange);
+  }
+  void _handleNetworkStatusChange(bool isOffline) {
+    setState(() {
+      _isOffline = isOffline;
+    });
+    if (_isOffline) {
+      _showNetworkErrorDialog();
+    }
+  }
+   void _showNetworkErrorDialog() {
+    if (_isOffline) {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('Network Error'),
+            content: const Text('You are offline. Please check your connection.'),
+            actions: <Widget>[
+              TextButton(
+                onPressed: () {
+                  _isOffline= false;
+                  Navigator.of(context).pop();
+                },
+                child: const Text('OK'),
+              ),
+            ],
+          );
+        },
+      );
+    }
+  }
   Future<String?> getConnectingIndex() async {
     final prefs = await SharedPreferences.getInstance();
     String? savedIndex = prefs.getString('connectingIndex');
@@ -135,7 +171,6 @@ class _VPNPageState extends State<VPNPage> {
  Future<void> _connectVpn(String id) async {
   try {
      // Check for internet connectivity
-    
     // Fetch VPN data asynchronously
     final VpnData vpnData = await _vpnService.getVpnDataByIndex(id);
 
@@ -162,6 +197,7 @@ class _VPNPageState extends State<VPNPage> {
     _vpnService.setStatusCustom();
     await _disconnectVpn();
     // Handle errors gracefully
+    // ignore: use_build_context_synchronously
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text("Failed to connect: ${error.toString()}")),
     );
@@ -204,7 +240,7 @@ class _VPNPageState extends State<VPNPage> {
   // Method to show confirmation dialog
 
   Future<void> _disconnectVpn() async {
-    print("disconnetcd");
+    debugPrint("disconnetcd");
     // Your logic to stop the VPN connection
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove('connectingIndex');
@@ -256,7 +292,7 @@ class _VPNPageState extends State<VPNPage> {
         throw Exception('Failed to load IP');
       }
     } catch (e) {
-      print('Error fetching public IP: $e');
+      debugPrint('Error fetching public IP: $e');
       return null;
     }
   }
@@ -300,8 +336,8 @@ class _VPNPageState extends State<VPNPage> {
       scaleHeightSecond = 20 - scrollHeight;
       _scaleFactor = scale; // Update the scale factor
     });
-    print("scaleHeightFirst $scaleHeightFirst");
-    print("scaleHeightSecond $scaleHeightSecond");
+    debugPrint("scaleHeightFirst $scaleHeightFirst");
+    debugPrint("scaleHeightSecond $scaleHeightSecond");
   }
 
   @override
@@ -381,8 +417,9 @@ class _VPNPageState extends State<VPNPage> {
                                   // Wrap the whole container with InkWell
                                   onTap: () async {
                                    
-                                    if (_isButtonDisabled)
+                                    if (_isButtonDisabled) {
                                       return; // Prevent multiple clicks
+                                    }
                                     _isButtonDisabled =
                                         true; // Disable the button
 
@@ -613,59 +650,57 @@ class _VPNPageState extends State<VPNPage> {
               items: vpnData.map((VpnData data) {
                 return DropdownMenuItem<String>(
                   value: data.id, // Set the value to VpnData.id
-                  child: Container(
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Expanded(
-                          child: Text(
-                            data.userProfile,
-                            style: const TextStyle(
-                                color: Colors.black,
-                                fontWeight: FontWeight.w700),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: Text(
+                          data.userProfile,
+                          style: const TextStyle(
+                              color: Colors.black,
+                              fontWeight: FontWeight.w700),
+                        ),
+                      ),
+                      Row(
+                        children: [
+                          IconButton(
+                            icon: const Icon(Icons.edit, color: Colors.blue),
+                            onPressed: () {
+                              if (data.id == connectingIndex) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text(
+                                        "Please disconnect the VPN first, then Edit."),
+                                  ),
+                                );
+                              } else {
+                                editVpnProfile(context, data.id);
+                              }
+                            },
                           ),
-                        ),
-                        Row(
-                          children: [
-                            IconButton(
-                              icon: const Icon(Icons.edit, color: Colors.blue),
-                              onPressed: () {
-                                if (data.id == connectingIndex) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
-                                      content: Text(
-                                          "Please disconnect the VPN first, then Edit."),
-                                    ),
-                                  );
-                                } else {
-                                  editVpnProfile(context, data.id);
-                                }
-                              },
-                            ),
-                            IconButton(
-                              icon: const Icon(Icons.delete, color: Colors.red),
-                              onPressed: () {
-                                if (data.id == connectingIndex &&
-                                    _vpnService.getConnectingStatus() == true) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
-                                      content: Text(
-                                          "Please disconnect the VPN first, then delete."),
-                                    ),
-                                  );
-                                } else {
-                                  deleteVpnProfile(context, data.id);
-                                }
-                                if (data.id != selectedIndex) {
-                                  Navigator.pop(
-                                      context); // Only pop after the state is updated
-                                }
-                              },
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
+                          IconButton(
+                            icon: const Icon(Icons.delete, color: Colors.red),
+                            onPressed: () {
+                              if (data.id == connectingIndex &&
+                                  _vpnService.getConnectingStatus() == true) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text(
+                                        "Please disconnect the VPN first, then delete."),
+                                  ),
+                                );
+                              } else {
+                                deleteVpnProfile(context, data.id);
+                              }
+                              if (data.id != selectedIndex) {
+                                Navigator.pop(
+                                    context); // Only pop after the state is updated
+                              }
+                            },
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
                 );
               }).toList(),
@@ -738,6 +773,7 @@ class _VPNPageState extends State<VPNPage> {
       // If the selected item was deleted, navigate to the dashboard
       if (selectedIndex == null) {
         Navigator.pushReplacement(
+          // ignore: use_build_context_synchronously
           context,
           MaterialPageRoute(builder: (context) => const Vpndashboard()),
         );
@@ -747,7 +783,7 @@ class _VPNPageState extends State<VPNPage> {
       }
     } else {
       // Handle the case when the VPN ID isn't found in the list
-      print('VPN with id $id not found');
+      debugPrint('VPN with id $id not found');
     }
   }
 

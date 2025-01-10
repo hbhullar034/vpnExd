@@ -8,9 +8,10 @@ import 'package:intl/intl.dart';
 class ProtectedCardWidget extends StatefulWidget {
   final String? selectedIndex;
 
-  const ProtectedCardWidget({Key? key, this.selectedIndex}) : super(key: key);
+  const ProtectedCardWidget({super.key, this.selectedIndex});
 
   @override
+  // ignore: library_private_types_in_public_api
   _ProtectedCardWidgetState createState() => _ProtectedCardWidgetState();
 }
 
@@ -329,9 +330,9 @@ class _ProtectedCardWidgetState extends State<ProtectedCardWidget> {
         ],
       );
     }).toList(),
-    gridData: FlGridData(show: false),
+    gridData: const FlGridData(show: false),
     titlesData: FlTitlesData(
-      leftTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+      leftTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
       topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
       rightTitles:
           const AxisTitles(sideTitles: SideTitles(showTitles: false)),

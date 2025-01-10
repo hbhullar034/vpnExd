@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/material.dart';
 
-import '../models/VpnStatusModel.dart';
+import '../models/vpn_status_model.dart';
 import '../models/vpn_data_model.dart';
 import 'openvpn_service.dart';
 import 'vpn_usage_service.dart';
@@ -21,6 +21,7 @@ class VpnService {
   VpnService._internal();
   final OpenVpnService _vpnService = OpenVpnService();
   final VpnUsageService _vpnUsageService = VpnUsageService();
+  
   Timer? _statusTimer;
   Timer? _vpnCheckTimer;
   String? connectingIndex;
@@ -88,7 +89,7 @@ class VpnService {
     }
      catch (error) {
       
-      print("testtt vpn network");
+      debugPrint("testtt vpn network");
       final prefs = await SharedPreferences.getInstance();
       await prefs.remove('startTime');
      await disconnectVpn();
@@ -97,6 +98,7 @@ class VpnService {
       
     }
   }
+
  void setStatusCustom(){
 isConnecting= false;
  }
@@ -122,7 +124,7 @@ isConnecting= false;
     try {
       await _vpnService.disconnect(); // Disconnect VPN securely
     } catch (e) {
-      print("Error disconnecting VPN: $e");
+      debugPrint("Error disconnecting VPN: $e");
     }
   }
 

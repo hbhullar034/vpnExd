@@ -14,6 +14,7 @@ class VpnUrlScreen extends StatefulWidget {
   const VpnUrlScreen({super.key});
 
   @override
+  // ignore: library_private_types_in_public_api
   _VpnUrlScreenState createState() => _VpnUrlScreenState();
 }
 
@@ -61,23 +62,27 @@ class _VpnUrlScreenState extends State<VpnUrlScreen>
       if (response.statusCode == 200) {
         final details = await parseOvpnFile(response.body);
         if (details['server'] == 'Not Found') {
+          // ignore: use_build_context_synchronously
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Invalid .ovpn file content')),
           );
           return;
         }
         Navigator.push(
+          // ignore: use_build_context_synchronously
           context,
           MaterialPageRoute(
             builder: (context) => LoginPage(fileDetails: details),
           ),
         );
       } else {
+        // ignore: use_build_context_synchronously
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Failed to load .ovpn file')),
         );
       }
     } catch (e) {
+      // ignore: use_build_context_synchronously
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Error: Unable to fetch URL')),
       );
@@ -105,6 +110,7 @@ class _VpnUrlScreenState extends State<VpnUrlScreen>
 
     if (result != null) {
       if (result.files.single.size > 256 * 1024) {
+        // ignore: use_build_context_synchronously
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('File exceeds 256 KB size limit')),
         );
@@ -116,23 +122,26 @@ class _VpnUrlScreenState extends State<VpnUrlScreen>
         final details =
             await parseOvpnFile(await File(filePath).readAsString());
         if (details['server'] == 'Not Found') {
+          // ignore: use_build_context_synchronously
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Invalid .ovpn file content')),
           );
           return;
         }
         Navigator.push(
+          // ignore: use_build_context_synchronously
           context,
           MaterialPageRoute(
             builder: (context) => LoginPage(fileDetails: details),
           ),
         );
       } else {
+        // ignore: use_build_context_synchronously
         ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Please upload only .ovpn file')));
       }
     } else {
-      print('No file selected');
+      debugPrint('No file selected');
     }
   }
 
@@ -141,14 +150,14 @@ class _VpnUrlScreenState extends State<VpnUrlScreen>
     try {
       PermissionStatus permission = await Permission.storage.request();
       if (!permission.isGranted) {
-        print("Storage permission not granted");
+        debugPrint("Storage permission not granted");
         return;
       }
 
       final byteData = await rootBundle.load(assetPath);
       final directory = await path_provider.getDownloadsDirectory();
       if (directory == null) {
-        print("Downloads directory not found");
+        debugPrint("Downloads directory not found");
         return;
       }
 
@@ -168,9 +177,9 @@ class _VpnUrlScreenState extends State<VpnUrlScreen>
       final newFile = File(filePath);
       await newFile.writeAsBytes(byteData.buffer
           .asUint8List(byteData.offsetInBytes, byteData.lengthInBytes));
-      print("File saved to: $filePath");
+      debugPrint("File saved to: $filePath");
     } catch (e) {
-      print("Error saving file: $e");
+      debugPrint("Error saving file: $e");
     }
   }
 
@@ -283,7 +292,7 @@ class _VpnUrlScreenState extends State<VpnUrlScreen>
           BoxShadow(
             color: Colors.black.withOpacity(0.2),
             blurRadius: 8,
-            offset: Offset(0, -2),
+            offset: const Offset(0, -2),
           ),
         ],
       ),

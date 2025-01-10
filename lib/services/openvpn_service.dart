@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:io';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:openvpn_flutter/openvpn_flutter.dart' as vpn_flutter; // Import with prefix
-import '../models/VpnStatusModel.dart';
+import '../models/vpn_status_model.dart';
 import '../models/vpn_data_model.dart';
 import 'vpn_usage_service.dart';
 
@@ -38,7 +38,7 @@ class OpenVpnService {
   }
    Future<bool> testVpnServerConnectivity(String server, int port) async {
     try {
-      final socket = await Socket.connect(server, port, timeout: Duration(seconds: 5));
+      final socket = await Socket.connect(server, port, timeout: const Duration(seconds: 5));
       socket.destroy(); // Close the connection
       _saveLog("Successfully connected to server: $server:$port");
       return true;
