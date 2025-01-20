@@ -3,12 +3,14 @@ import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:openvpn_app/Screens/common_app_bar.dart';
+import 'package:openvpn_app/controller/theme_controller.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:path_provider/path_provider.dart' as path_provider;
 import 'package:http/http.dart' as http;
 import '../constants/colors.dart';
 import 'login_page.dart'; // Replace with the correct import path for your LoginPage
 import 'common_app_bar_with_drawer.dart'; // Replace with the correct import path for your drawer
+import 'package:get/get.dart';
 
 class VpnUrlScreen extends StatefulWidget {
   const VpnUrlScreen({super.key});
@@ -24,7 +26,7 @@ class _VpnUrlScreenState extends State<VpnUrlScreen>
   late TabController _tabController;
   final TextEditingController urlController = TextEditingController();
   int _currentIndex = 0;
-
+  final themeController = Get.find<ThemeController>();
 
 
   @override
@@ -191,9 +193,9 @@ class _VpnUrlScreenState extends State<VpnUrlScreen>
       appBar: CommonAppBar(scaffoldKey: _scaffoldKey),
       drawer: const CommonDrawer(),
       body: Container(
-        decoration: const BoxDecoration(
+        decoration:  BoxDecoration(
           image: DecorationImage(
-            image: AssetImage('assets/images/inner-bg.png'),
+            image: AssetImage(themeController.innerImage),
             fit: BoxFit.cover,
           ),
         ),
@@ -209,14 +211,16 @@ class _VpnUrlScreenState extends State<VpnUrlScreen>
                   const Icon(Icons.folder_open,
                       size: 80, color: AppColors.fileIconColor),
                   const SizedBox(height: 16),
-                  const Text(
+                   Text(
                     '.OVPN',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold,color: Theme.of(context).colorScheme.themeTextColor),
                   ),
                   const SizedBox(height: 16),
-                  const Text(
+                   Text(
                     'Select all files related to a single profile.\nYou can import only one ".ovpn" profile at a time.\nThe maximum file size is 256 KB.',
                     textAlign: TextAlign.center,
+                    style: TextStyle(color: Theme.of(context).colorScheme.themeTextColor),
+                    
                   ),
                   const SizedBox(height: 24),
                   SizedBox(
@@ -225,8 +229,8 @@ class _VpnUrlScreenState extends State<VpnUrlScreen>
                     child: ElevatedButton(
                       onPressed: _handleFileUpload,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.createMaterialColor(AppColors.btnPrimaryColor),
-                        foregroundColor: AppColors.createMaterialColor(AppColors.text),
+                        backgroundColor: Theme.of(context).colorScheme.buttonBackgroundColor,
+                        foregroundColor:Theme.of(context).colorScheme.buttonTextColor,
                         elevation: 0,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(
@@ -245,9 +249,9 @@ class _VpnUrlScreenState extends State<VpnUrlScreen>
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Text(
+                   Text(
                     'Type Server Address or Cloud ID',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold,color: Theme.of(context).colorScheme.themeTextColor),
                   ),
                   const SizedBox(height: 10),
                   TextField(
@@ -268,8 +272,8 @@ class _VpnUrlScreenState extends State<VpnUrlScreen>
                     child: ElevatedButton(
                       onPressed: _handleUrlSubmit,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.createMaterialColor(AppColors.btnPrimaryColor),
-                        foregroundColor: AppColors.createMaterialColor(AppColors.text),
+                        backgroundColor: Theme.of(context).colorScheme.buttonBackgroundColor,
+                        foregroundColor:Theme.of(context).colorScheme.buttonTextColor,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(
                               10), // No rounded corners (sharp edges)

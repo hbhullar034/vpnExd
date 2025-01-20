@@ -1,5 +1,8 @@
 // ignore: file_names
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import '../controller/theme_controller.dart';
+import 'network_test.dart';
 import 'vpn_dashboard.dart';
 import '../constants/Colors.dart';
 import 'about_page.dart';
@@ -13,7 +16,7 @@ class CommonDrawer extends StatefulWidget {
 }
 
 class _CommonDrawerState extends State<CommonDrawer> with WidgetsBindingObserver {
-
+final themeController = Get.find<ThemeController>();
 @override
   void initState() {
     super.initState();
@@ -116,6 +119,46 @@ class _CommonDrawerState extends State<CommonDrawer> with WidgetsBindingObserver
                       );
                     },
                   ),
+                 
+              Obx(() {
+  return ListTile(
+    leading: Icon(
+      themeController.isDarkMode.value 
+          ? Icons.light_mode // Dark theme icon
+          : Icons.dark_mode, // Light theme icon
+      color: themeController.isDarkMode.value 
+          ? Colors.white70 // Adjust the icon color for dark theme
+          : Colors.black54, // Adjust the icon color for light theme
+    ),
+    title: Text(
+      themeController.isDarkMode.value ? 'Light mode' : 'Dark mode',
+      style: TextStyle(color: AppColors.menuTitleColor),
+    ),
+    onTap: () {
+      themeController.toggleTheme();
+      Navigator.pop(context);
+    },
+  );
+}),
+                    ListTile(
+                    leading:
+                        const Icon(Icons.info, color: AppColors.menuIconColor),
+                    title: const Text('Network',
+                        style: TextStyle(color: AppColors.menuTitleColor)),
+                    onTap: () {
+                       // Close the drawer
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              const NetworkTestScreen(), // Destination screen
+                        ),
+                      );
+                        
+                        
+                    },
+                  ),
+
                 ],
               ),
             ),

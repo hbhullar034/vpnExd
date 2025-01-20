@@ -3,7 +3,10 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:openvpn_app/Screens/graph.dart';
+import '../controller/theme_controller.dart';
+import '../main.dart';
 import '../services/network_service.dart';
 import 'common_app_bar.dart';
 import '../constants/colors.dart';
@@ -46,8 +49,8 @@ class _VPNPageState extends State<VPNPage> {
   final NetworkService _networkService = NetworkService();
   bool _isOffline = false;
   double _scaleFactor = 1.0;
-  double scaleHeightFirst = 120; //  height top of Connected timer
-  double scaleHeightSecond = 20; // height top of circle
+  double scaleHeightFirst = 90; //  height top of Connected timer
+  double scaleHeightSecond = 15; // height top of circle
   //final OpenVpnService _vpnService = OpenVpnService();
   bool isConnecting = false;
   List<VpnData> vpnData = [];
@@ -60,7 +63,9 @@ class _VPNPageState extends State<VPNPage> {
   bool isDropdownOpen = false;
   String? ipAddress = '';
   String? cachedIpAddress; //store ip address
-  
+  bool _isDialogOpen = false;
+  final themeController = Get.find<ThemeController>();
+
   @override
   void initState() {
     super.initState();
@@ -106,7 +111,7 @@ class _VPNPageState extends State<VPNPage> {
             selectedIndex = connectingIndex;
           });
           final currentStatus = _vpnService.getCurrentStatus();
-          
+
           if (currentStatus == null) {
             _vpnService.initialize();
           }
@@ -125,10 +130,12 @@ class _VPNPageState extends State<VPNPage> {
     connectingIndex = await getConnectingIndex();
     //selectedIndex = connectingIndex;
   }
-   void _startMonitoring() async {
+
+  void _startMonitoring() async {
     // Start monitoring network status
     await _networkService.startMonitoring(_handleNetworkStatusChange);
   }
+
   void _handleNetworkStatusChange(bool isOffline) {
     setState(() {
       _isOffline = isOffline;
@@ -137,28 +144,44 @@ class _VPNPageState extends State<VPNPage> {
       _showNetworkErrorDialog();
     }
   }
-   void _showNetworkErrorDialog() {
-    if (_isOffline) {
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: const Text('Network Error'),
-            content: const Text('You are offline. Please check your connection.'),
-            actions: <Widget>[
-              TextButton(
-                onPressed: () {
-                  _isOffline= false;
-                  Navigator.of(context).pop();
-                },
-                child: const Text('OK'),
-              ),
-            ],
-          );
-        },
+
+  void _showNetworkErrorDialog() {
+   if (_isOffline && !_isDialogOpen) {
+  _isDialogOpen = true;
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      // Close the dialog automatically after 3 seconds
+      Future.delayed(const Duration(seconds: 6), () {
+        if (Navigator.of(context).canPop()) {
+          _isOffline = false;
+          _isOffline = false;
+          Navigator.of(context).pop();
+        }
+      });
+
+      return AlertDialog(
+        title: const Text('Network Error'),
+        content:
+            const Text('You are offline. Please check your connection.'),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () {
+              _isOffline = false;
+              _isOffline = false;
+              Navigator.of(context).pop();
+            },
+            child: const Text('OK'),
+          ),
+        ],
       );
+    },
+  );
+
+      
     }
   }
+
   Future<String?> getConnectingIndex() async {
     final prefs = await SharedPreferences.getInstance();
     String? savedIndex = prefs.getString('connectingIndex');
@@ -168,41 +191,41 @@ class _VPNPageState extends State<VPNPage> {
     return savedIndex != null ? savedIndex.toString() : '';
   }
 
- Future<void> _connectVpn(String id) async {
-  try {
-     // Check for internet connectivity
-    // Fetch VPN data asynchronously
-    final VpnData vpnData = await _vpnService.getVpnDataByIndex(id);
+  Future<void> _connectVpn(String id) async {
+    try {
+      // Check for internet connectivity
+      // Fetch VPN data asynchronously
+      final VpnData vpnData = await _vpnService.getVpnDataByIndex(id);
 
-    // Save the connecting index to persistent storage
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('connectingIndex', id);
+      // Save the connecting index to persistent storage
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('connectingIndex', id);
 
-    // Update local state to indicate that a connection attempt is in progress
-    setState(() {
-      connectingIndex = id;
-      isConnecting = true;
-    });
+      // Update local state to indicate that a connection attempt is in progress
+      setState(() {
+        connectingIndex = id;
+        isConnecting = true;
+      });
 
-    // Attempt to connect to the VPN using the fetched VPN data
-    await _vpnService.connectVpn(vpnData, id);
+      // Attempt to connect to the VPN using the fetched VPN data
+      await _vpnService.connectVpn(vpnData, id);
 
-    // Optionally check the VPN status
-    final OpenVpnStatus? status = _vpnService.getCurrentStatus();
-    if (status?.stage != 'connected') {
-      throw Exception(
-          "VPN failed to connect. Status: ${status?.stage ?? 'unknown'}");
+      // Optionally check the VPN status
+      final OpenVpnStatus? status = _vpnService.getCurrentStatus();
+      if (status?.stage != 'connected') {
+        throw Exception(
+            "VPN failed to connect. Status: ${status?.stage ?? 'unknown'}");
+      }
+    } catch (error) {
+      _vpnService.setStatusCustom();
+      await _disconnectVpn();
+      // Handle errors gracefully
+      // ignore: use_build_context_synchronously
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Failed to connect: ${error.toString()}")),
+      );
     }
-  } catch (error) {
-    _vpnService.setStatusCustom();
-    await _disconnectVpn();
-    // Handle errors gracefully
-    // ignore: use_build_context_synchronously
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text("Failed to connect: ${error.toString()}")),
-    );
   }
-}
 
   Future<void> alreadyConnected(
       BuildContext context, dynamic vpnData, String id) async {
@@ -215,7 +238,7 @@ class _VPNPageState extends State<VPNPage> {
             "A VPN connection is already in progress. Do you want to disconnect and connect to a new VPN server?",
         cancelButtonText: "Cancel",
         confirmButtonText: "Proceed",
-        confirmButtonColor: Colors.green,
+        confirmButtonColor: Theme.of(context).colorScheme.secondary,
       );
       if (userConfirmed) {
         await _disconnectVpn(); // First disconnect VPN
@@ -240,7 +263,6 @@ class _VPNPageState extends State<VPNPage> {
   // Method to show confirmation dialog
 
   Future<void> _disconnectVpn() async {
-    debugPrint("disconnetcd");
     // Your logic to stop the VPN connection
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove('connectingIndex');
@@ -326,22 +348,21 @@ class _VPNPageState extends State<VPNPage> {
     }
     double scrollHeight;
     if (_scrollController.offset / 3 > 20) {
-    scrollHeight = 18;
-    } else  {
+      scrollHeight = 15;
+    } else {
       scrollHeight = _scrollController.offset / 3;
     }
-       
+
     setState(() {
-      scaleHeightFirst = 120 -scrollHeight;
-      scaleHeightSecond = 20 - scrollHeight;
+      scaleHeightFirst = 90 - scrollHeight;
+      scaleHeightSecond = 15 - scrollHeight;
       _scaleFactor = scale; // Update the scale factor
     });
-    debugPrint("scaleHeightFirst $scaleHeightFirst");
-    debugPrint("scaleHeightSecond $scaleHeightSecond");
   }
 
   @override
   Widget build(BuildContext context) {
+    mq = MediaQuery.sizeOf(context);
     // Get the current orientation (portrait or landscape)
     final orientation = MediaQuery.of(context).orientation;
 
@@ -363,10 +384,10 @@ class _VPNPageState extends State<VPNPage> {
                     image: AssetImage(
                       _vpnService.getConnectingStatus() == true &&
                               stageResult != 'connected'
-                          ? 'assets/images/blue.png'
+                          ? themeController.blueImage
                           : stageResult == 'connected'
-                              ? 'assets/images/green.png'
-                              : 'assets/images/red.png',
+                              ? themeController.greenImage
+                              : themeController.redImage,
                     ),
                     fit: BoxFit.cover,
                   ),
@@ -376,171 +397,13 @@ class _VPNPageState extends State<VPNPage> {
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
                           SizedBox(height: scaleHeightFirst),
-                          const Text(
-                            "Connected Time",
-                            style: TextStyle(color: Colors.white, fontSize: 18),
-                          ),
-                          const SizedBox(height: 10),
-                          ValueListenableBuilder<OpenVpnStatus?>(
-                            valueListenable:
-                                _vpnService.getCurrentStatusNotifier(),
-                            builder: (context, status, child) {
-                              return Text(
-                                _formattedDuration(status),
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 32,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              );
-                            },
-                          ),
-                          SizedBox(height: scaleHeightSecond),
-                          AnimatedContainer(
-                            duration: const Duration(
-                                milliseconds: 200), // Duration for animation
-                            curve: Curves.easeInOut, // Smooth animation
-                            child: Transform.scale(
-                              scale:
-                                  _scaleFactor, // Apply scale factor to the whole container
-                              child: Container(
-                                width: 230, // Keep the base width
-                                height: 230,
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  border: Border.all(
-                                    color: getBorderColor(stageResult),
-                                    width: 12,
-                                  ),
-                                ),
-                                child: InkWell(
-                                  // Wrap the whole container with InkWell
-                                  onTap: () async {
-                                   
-                                    if (_isButtonDisabled) {
-                                      return; // Prevent multiple clicks
-                                    }
-                                    _isButtonDisabled =
-                                        true; // Disable the button
-
-                                    try {
-                                      if (stageResult == 'connected') {
-                                        // Disconnect logic
-                                         _disconnectVpn();
-                                          Future.delayed(
-                                          const Duration(seconds: 3));
-                                      _isButtonDisabled = false;
-                                    
-                                      } else {
-                                        // Connect logic
-                                        if (selectedIndex != null &&
-                                            vpnData.isNotEmpty) {
-                                           _connectVpn(selectedIndex!);
-                                           Future.delayed(
-                                          const Duration(seconds: 3));
-                                      _isButtonDisabled = false;
-                                        } else {
-                                          // Show SnackBar for missing VPN selection
-                                          ScaffoldMessenger.of(context)
-                                              .showSnackBar(
-                                            const SnackBar(
-                                                content: Text(
-                                                    "Please select a VPN")),
-                                          );
-                                           Future.delayed(
-                                          const Duration(seconds: 3));
-                                      _isButtonDisabled = false;
-                                        }
-                                      }
-                                    } catch (e) {
-                                      // Handle any errors if needed
-                                      ScaffoldMessenger.of(context)
-                                          .showSnackBar(
-                                        SnackBar(
-                                            content:
-                                                Text("An error occurred: $e")),
-                                      );
-                                    } 
-                                  },
-                                  child: CircleAvatar(
-                                    radius: 50,
-                                    backgroundColor: Colors.white,
-                                    child: Padding(
-                                      padding: const EdgeInsets.only(top: 22.0),
-                                      child: Column(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.start,
-                                        children: [
-                                          Icon(
-                                            Icons.power_settings_new,
-                                            color:
-                                                _vpnService.getConnectingStatus() ==
-                                                            true &&
-                                                        stageResult !=
-                                                            'connected'
-                                                    ? Colors.blue
-                                                    : stageResult == 'connected'
-                                                        ? Colors.green
-                                                        : Colors.red,
-                                            size: 70,
-                                          ),
-                                          const SizedBox(height: 5),
-                                          const Text(
-                                            "Your IP",
-                                            style: TextStyle(
-                                              color: Color.fromARGB(
-                                                  255, 148, 145, 145),
-                                              fontSize: 20,
-                                            ),
-                                            textAlign: TextAlign.center,
-                                          ),
-                                          ipTextFieldWidget(stageResult),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-
-                          // Adjust layout based on orientation
-                          // Portrait Layout (SingleChildScrollView)
-                          Expanded(
-                            child: SingleChildScrollView(
-                              controller: _scrollController,
-                              child: Column(
-                                children: [
-                                  Padding(
+                          Padding(
                                     padding: const EdgeInsets.symmetric(
                                         horizontal: 20),
                                     child:
                                         _buildSelectedLocationDropdown(context),
                                   ),
-
-                                  const SizedBox(height: 10),
-                                  // Stack of VPN Info and other widgets
-                                  Stack(
-                                    children: <Widget>[
-                                      Container(
-                                        margin: const EdgeInsets.only(
-                                            left: 4,
-                                            right: 4,
-                                            top: 0,
-                                            bottom: 0),
-                                        padding: const EdgeInsets.only(
-                                            left: 20,
-                                            right: 20,
-                                            top: 0,
-                                            bottom: 0),
-                                        child: ProtectedCardWidget(
-                                            selectedIndex: selectedIndex),
-                                      ),
-                                    ],
-                                  ),
-
-                                  // Additional stats and content
-                                  Padding(
+                                   Padding(
                                     padding: const EdgeInsets.symmetric(
                                         horizontal: 20),
                                     child: Row(
@@ -564,7 +427,172 @@ class _VPNPageState extends State<VPNPage> {
                                       ],
                                     ),
                                   ),
-                                  const SizedBox(height: 20),
+                          
+                           Text(
+                            "Connected Time ",
+                            style: TextStyle(color: Theme.of(context).colorScheme.connectingColor, fontSize: 18),
+                          ),
+                          //const SizedBox(height: 5),
+                          ValueListenableBuilder<OpenVpnStatus?>(
+                            valueListenable:
+                                _vpnService.getCurrentStatusNotifier(),
+                            builder: (context, status, child) {
+                              return Text(
+                                _formattedDuration(status),
+                                style:  TextStyle(
+                                  color:  Theme.of(context).colorScheme.connectingColor,
+                                  fontSize: 32,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              );
+                            },
+                          ),
+                          //SizedBox(height: scaleHeightSecond),
+                          AnimatedContainer(
+                            duration: const Duration(
+                                milliseconds: 200), // Duration for animation
+                            curve: Curves.easeInOut, // Smooth animation
+                            child: Transform.scale(
+                              scale:
+                                  _scaleFactor, // Apply scale factor to the whole container
+                              child: Container(
+                                width: 230, // Keep the base width
+                                height: 230,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  border: Border.all(
+                                    color: getBorderColor(stageResult),
+                                    width: 12,
+                                  ),
+                                ),
+                                child: InkWell(
+                                  // Wrap the whole container with InkWell
+                                  onTap: () async {
+                                    if (_isButtonDisabled) {
+                                      return; // Prevent multiple clicks
+                                    }
+
+                                    setState(() {
+                                      _isButtonDisabled =
+                                          true; // Disable the button
+                                    });
+
+                                    try {
+                                      if (stageResult == 'connected') {
+                                        // Disconnect logic
+                                        await _disconnectVpn();
+                                      } else {
+                                        // Connect logic
+                                        if (selectedIndex != null &&
+                                            vpnData.isNotEmpty) {
+                                           _connectVpn(selectedIndex!);
+                                          await Future.delayed(
+                                              const Duration(seconds: 3));
+                                          // Re-enable the button after completing the operation
+                                          setState(() {
+                                            _isButtonDisabled = false;
+                                          });
+                                          // Optional: Add a delay after connecting (if needed)
+                                        } else {
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(
+                                            const SnackBar(
+                                                content: Text(
+                                                    "Please select a VPN")),
+                                          );
+                                        }
+                                      }
+                                    } catch (e) {
+                                      // Handle any errors if needed
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(
+                                        SnackBar(
+                                            content:
+                                                Text("An error occurred: $e")),
+                                      );
+                                    } finally {
+                                      await Future.delayed(
+                                          const Duration(seconds: 3));
+                                      // Re-enable the button after completing the operation
+                                      setState(() {
+                                        _isButtonDisabled = false;
+                                      });
+                                    }
+                                  },
+                                  child: CircleAvatar(
+                                    radius: 50,
+                                    backgroundColor: Theme.of(context).colorScheme.circleBackgroundColor,
+                                    child: Padding(
+                                      padding: const EdgeInsets.only(top: 22.0),
+                                      child: Column(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.start,
+                                        children: [
+                                          Icon(
+                                            Icons.power_settings_new,
+                                            color:
+                                                _vpnService.getConnectingStatus() ==
+                                                            true &&
+                                                        stageResult !=
+                                                            'connected'
+                                                    ? Colors.blue
+                                                    : stageResult == 'connected'
+                                                        ? Colors.green
+                                                        : Colors.red,
+                                            size: 60,
+                                          ),
+                                          const SizedBox(height: 10),
+                                           Text(
+                                            "Your IP",
+                                            style: TextStyle(
+                                              color: Theme.of(context).colorScheme.ipAddressNameColor,
+                                              fontSize: 15,
+                                            ),
+                                            textAlign: TextAlign.center,
+                                          ),
+                                          ipTextFieldWidget(stageResult),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+
+                          // Adjust layout based on orientation
+                          // Portrait Layout (SingleChildScrollView)
+                          Expanded(
+                            child: SingleChildScrollView(
+                              controller: _scrollController,
+                              child: Column(
+                                children: [
+                                  
+
+                                  const SizedBox(height: 50),
+                                  // Stack of VPN Info and other widgets
+                                  Stack(
+                                    children: <Widget>[
+                                      Container(
+                                        margin: const EdgeInsets.only(
+                                            left: 4,
+                                            right: 4,
+                                            top: 0,
+                                            bottom: 0),
+                                        padding: const EdgeInsets.only(
+                                            left: 20,
+                                            right: 20,
+                                            top: 0,
+                                            bottom: 0),
+                                        child: ProtectedCardWidget(
+                                            selectedIndex: selectedIndex),
+                                      ),
+                                    ],
+                                  ),
+
+                                  // Additional stats and content
+                                 
+                                  const SizedBox(height: 5),
                                 ],
                               ),
                             ),
@@ -586,7 +614,7 @@ class _VPNPageState extends State<VPNPage> {
                                   Text("Landscape Mode upadte Soon"),
                                   // Add any widgets you want in landscape mode here
                                   // For example:
-                                  SizedBox(height: 10),
+                                  SizedBox(height: 5),
                                 ],
                               ),
                             ),
@@ -622,113 +650,120 @@ class _VPNPageState extends State<VPNPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const SizedBox(height: 16),
+        const SizedBox(height: 10),
         Container(
-          height: 65,
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(
-              color: const Color.fromARGB(255, 226, 224, 224),
-              width: 1, // Thickness of the border
-            ),
-          ),
-          child: DropdownButtonHideUnderline(
-            child: DropdownButton<String>(
-              // String as value
-              value: selectedIndex, // Here we use String (VpnData.id)
-              hint: Text(
-                vpnData.isNotEmpty ? "Choose a VPN" : "No records",
-                style: const TextStyle(
-                    color: Colors.black, fontWeight: FontWeight.w700),
-              ),
-              dropdownColor: Colors.white,
-              icon: const Icon(Icons.more_vert, color: Colors.black),
-              isExpanded: true,
-
-              items: vpnData.map((VpnData data) {
-                return DropdownMenuItem<String>(
-                  value: data.id, // Set the value to VpnData.id
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Expanded(
-                        child: Text(
-                          data.userProfile,
-                          style: const TextStyle(
-                              color: Colors.black,
-                              fontWeight: FontWeight.w700),
-                        ),
-                      ),
-                      Row(
-                        children: [
-                          IconButton(
-                            icon: const Icon(Icons.edit, color: Colors.blue),
-                            onPressed: () {
-                              if (data.id == connectingIndex) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text(
-                                        "Please disconnect the VPN first, then Edit."),
-                                  ),
-                                );
-                              } else {
-                                editVpnProfile(context, data.id);
-                              }
-                            },
-                          ),
-                          IconButton(
-                            icon: const Icon(Icons.delete, color: Colors.red),
-                            onPressed: () {
-                              if (data.id == connectingIndex &&
-                                  _vpnService.getConnectingStatus() == true) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text(
-                                        "Please disconnect the VPN first, then delete."),
-                                  ),
-                                );
-                              } else {
-                                deleteVpnProfile(context, data.id);
-                              }
-                              if (data.id != selectedIndex) {
-                                Navigator.pop(
-                                    context); // Only pop after the state is updated
-                              }
-                            },
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                );
-              }).toList(),
-              onChanged: (String? newId) {
-                if (newId != selectedIndex) {
-                  setState(() {
-                    isDropdownOpen =
-                        newId != null; // Update dropdown open state
-                    selectedIndex = newId; // Update selected ID
-                    if (_vpnService.getConnectingStatus() == true &&
-                        newId != null) {
-                      alreadyConnected(
-                          context,
-                          vpnData.firstWhere((data) => data.id == newId),
-                          newId);
-                    }
-                  });
-                }
-              },
-              onTap: () {
-                // Set the state when dropdown is opened
-                setState(() {
-                  isDropdownOpen = true;
-                });
-              },
-            ),
-          ),
+  height: 55,
+  padding: const EdgeInsets.symmetric(horizontal: 16),
+  decoration: BoxDecoration(
+    color: Theme.of(context).colorScheme.dropdownColorBackground,
+    borderRadius: BorderRadius.circular(8),
+    border: Border.all(
+      color: const Color.fromARGB(255, 226, 224, 224),
+      width: 1, // Thickness of the border
+    ),
+  ),
+  child: DropdownButtonHideUnderline(
+    child: DropdownButton<String>(
+      value: selectedIndex, // String as value
+      hint: Text(
+        vpnData.isNotEmpty ? "Choose a VPN" : "No records",
+        style: TextStyle(
+          color: Theme.of(context).colorScheme.dropdownColor,
+          fontWeight: FontWeight.w700,
         ),
+      ),
+      dropdownColor: Theme.of(context).brightness == Brightness.dark
+          ? Colors.black // Semi-transparent dark background
+          : Theme.of(context).colorScheme.dropdownColorBackground, 
+      icon: Icon(Icons.more_vert,
+          color: Theme.of(context).colorScheme.dropdownColor),
+      isExpanded: true,
+      
+    
+      items: vpnData.map((VpnData data) {
+        return DropdownMenuItem<String>(
+          value: data.id, // Set the value to VpnData.id
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              Expanded(
+                child: Text(
+                  data.userProfile,
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.dropdownColor,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+              Row(
+                children: [
+                  IconButton(
+                    icon: Icon(Icons.edit,
+                        color: Theme.of(context).colorScheme.dropdownColor),
+                    onPressed: () {
+                      if (data.id == connectingIndex &&
+                          _vpnService.getConnectingStatus() == true) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text(
+                                "Please disconnect the VPN first, then Edit."),
+                          ),
+                        );
+                      } else {
+                        editVpnProfile(context, data.id);
+                      }
+                    },
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.delete, color: Colors.red),
+                    onPressed: () {
+                      if (data.id == connectingIndex &&
+                          _vpnService.getConnectingStatus() == true) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text(
+                                "Please disconnect the VPN first, then delete."),
+                          ),
+                        );
+                      } else {
+                        deleteVpnProfile(context, data.id);
+                      }
+                      if (data.id != selectedIndex) {
+                        Navigator.pop(
+                            context); // Only pop after the state is updated
+                      }
+                    },
+                  ),
+                ],
+              ),
+            ],
+          ),
+        );
+      }).toList(),
+      onChanged: (String? newId) {
+        if (newId != selectedIndex) {
+          setState(() {
+            isDropdownOpen = newId != null; // Update dropdown open state
+            selectedIndex = newId; // Update selected ID
+            if (_vpnService.getConnectingStatus() == true && newId != null) {
+              alreadyConnected(
+                context,
+                vpnData.firstWhere((data) => data.id == newId),
+                newId,
+              );
+            }
+          });
+        }
+      },
+      onTap: () {
+        setState(() {
+          isDropdownOpen = true; // Set the state when dropdown is opened
+        });
+      },
+    ),
+  ),
+),
+
       ],
     );
   }
@@ -823,7 +858,6 @@ class _VPNPageState extends State<VPNPage> {
         future: _vpnService.getVpnDataByIndex(
             connectingIndex ?? ''), // Call the async method here for IP
         builder: (context, snapshot) {
-         
           return Column(
             children: [
               if (_vpnService.getConnectingStatus() == true &&
@@ -831,14 +865,7 @@ class _VPNPageState extends State<VPNPage> {
                 const Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2.0,
-                        color: Colors.blue,
-                      ),
-                    ),
+                   
                     SizedBox(width: 10),
                     Text(
                       'Connecting...',
@@ -851,15 +878,16 @@ class _VPNPageState extends State<VPNPage> {
                 )
               else if (snapshot.hasError)
                 Text(ipAddress ?? 'Fetching IP...',
-                    style: const TextStyle(
-                        fontSize: 19, fontWeight: FontWeight.w900))
+                    style:  TextStyle(
+                        color:Theme.of(context).colorScheme.ipAddressColor,
+                      fontSize: 15, fontWeight: FontWeight.bold))
               else if (snapshot.hasData)
                 Text(
                   _vpnService.getConnectingStatus() == true
                       ? (snapshot.data!.serverName)
                       : (ipAddress ?? 'Not found'),
-                  style: const TextStyle(
-                      fontSize: 19, fontWeight: FontWeight.w900),
+                  style:  TextStyle(color:Theme.of(context).colorScheme.ipAddressColor,
+                      fontSize: 15, fontWeight: FontWeight.bold),
                 )
               else
                 const Text("No data found")

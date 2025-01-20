@@ -2,13 +2,16 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
 //import 'package:workmanager/workmanager.dart';
 //import 'package:shared_preferences/shared_preferences.dart';
 import 'constants/colors.dart';
 import './services/vpn_service.dart'; // Your custom VPN service
 import 'Screens/vpn_dashboard.dart';
+import 'controller/theme_controller.dart';
 
-
+late Size mq;
 final VpnService _vpnService = VpnService();
 const platform = MethodChannel('com.example.app/vpn');
 
@@ -45,8 +48,11 @@ class MyAppLifecycleObserver extends WidgetsBindingObserver {
 }
 
 void main() async {
+  
   WidgetsFlutterBinding.ensureInitialized();
+  await GetStorage.init();
   WidgetsBinding.instance.addObserver(MyAppLifecycleObserver());
+final themeController = Get.put(ThemeController());
 
   // platform.setMethodCallHandler((call) async {
   //   if (call.method == "vpnCleanup") {
@@ -59,14 +65,25 @@ void main() async {
   //   callbackDispatcher,
   //   isInDebugMode: true, // Disable for production
   // );
-  runApp(MaterialApp(
-    home: const LandingPage(),
-    theme: ThemeData(
-      primarySwatch: AppColors.createMaterialColor(AppColors.primary),
-      scaffoldBackgroundColor: AppColors.createMaterialColor(
-          AppColors.text), // Transparent background
-    ),
-  ));
+runApp(MyApp(themeController: themeController));
+}
+class MyApp extends StatelessWidget {
+  final ThemeController themeController;
+
+  const MyApp({super.key, required this.themeController});
+
+  @override
+  Widget build(BuildContext context) {
+    return Obx(() {
+      return GetMaterialApp(
+        debugShowCheckedModeBanner: false,
+        theme: themeController.isDarkMode.value
+            ? themeController.darkTheme
+            : themeController.lightTheme,
+        home: const LandingPage(),
+      );
+    });
+  }
 }
 
 // Future<void> startVpnService() async {

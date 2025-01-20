@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'common_app_bar.dart';
 import 'common_app_bar_with_drawer.dart';
-
+import 'package:get/get.dart';
+import '../controller/theme_controller.dart';
 class AboutPage extends StatefulWidget {
    const AboutPage({super.key});
 
@@ -13,7 +14,7 @@ class AboutPage extends StatefulWidget {
 class _AboutPageState extends State<AboutPage> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 String appVersion = '';
-
+ final themeController = Get.find<ThemeController>();
   @override
   void initState() {
     super.initState();
@@ -38,9 +39,9 @@ Future<void> _loadAppVersion() async {
         children: [ 
        Positioned.fill(
             child: Container(
-              decoration: const BoxDecoration(
+              decoration:  BoxDecoration(
                 image: DecorationImage(
-                  image: AssetImage('assets/images/inner-bg.png'),
+                  image: AssetImage(themeController.innerImage),
                   fit: BoxFit.cover,
                 ),
               ),
@@ -52,17 +53,17 @@ Future<void> _loadAppVersion() async {
               mainAxisAlignment: MainAxisAlignment.center,
           children: [
             // App logo
-            const Center(
+             Center(
               child: Column(
                 children: [
-                  Icon(Icons.info, size: 100, color: Colors.blue),
-                  SizedBox(height: 16),
+                  const Icon(Icons.info, size: 100, color: Colors.blue),
+                  const SizedBox(height: 16),
                   Text(
                     "About Us",
                     style: TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
-                      color: Colors.blue,
+                      color:  Theme.of(context).colorScheme.themeTextColor,
                     ),
                   ),
                 ],
@@ -73,9 +74,9 @@ Future<void> _loadAppVersion() async {
             // App description
            
             const SizedBox(height: 8),
-            const Text(
+             Text(
               "Exdvpn App is a secure and reliable VPN service that ensures your online privacy and anonymity. Easily connect to servers worldwide and enjoy a secure browsing experience.",
-              style: TextStyle(fontSize: 16),
+              style: TextStyle(fontSize: 16,color: Theme.of(context).colorScheme.themeTextColor),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 24),

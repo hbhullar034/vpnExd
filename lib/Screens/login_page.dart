@@ -5,11 +5,11 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:openvpn_app/Screens/common_app_bar.dart';
 import 'package:openvpn_app/Screens/common_app_bar_with_drawer.dart';
+import '/controller/theme_controller.dart';
 import 'vpn_dashboard.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../constants/colors.dart';
-
+import 'package:get/get.dart';
 class LoginPage extends StatefulWidget {
   final Map<String, dynamic>? fileDetails; // For adding a new VPN
   final String? id; // For editing an existing VPN
@@ -30,7 +30,7 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController _profileNameController = TextEditingController();
   bool _obscureText = true;
   String? _editId; // Store the ID if we are editing an existing VPN
-
+final themeController = Get.find<ThemeController>();
   @override
   void initState() {
     super.initState();
@@ -68,9 +68,9 @@ class _LoginPageState extends State<LoginPage> {
           // Background image
           Positioned.fill(
             child: Container(
-              decoration: const BoxDecoration(
+              decoration:  BoxDecoration(
                 image: DecorationImage(
-                  image: AssetImage('assets/images/inner-bg.png'),
+                  image: AssetImage(themeController.innerImage),
                   fit: BoxFit.cover,
                 ),
               ),
@@ -128,10 +128,8 @@ class _LoginPageState extends State<LoginPage> {
                   height: 50, // Set the desired width here
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.createMaterialColor(
-                          AppColors.btnPrimaryColor),
-                      foregroundColor:
-                          AppColors.createMaterialColor(AppColors.text),
+                      backgroundColor: Theme.of(context).colorScheme.buttonBackgroundColor,
+                      foregroundColor:Theme.of(context).colorScheme.buttonTextColor,
                       shape: RoundedRectangleBorder(
                         borderRadius:
                             BorderRadius.circular(10), // Rounded corners

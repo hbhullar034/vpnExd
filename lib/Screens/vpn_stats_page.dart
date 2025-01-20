@@ -1,5 +1,8 @@
 
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+
+import '../controller/theme_controller.dart';
 
 class VpnStatTile<T> extends StatelessWidget {
   final String label;
@@ -7,14 +10,14 @@ class VpnStatTile<T> extends StatelessWidget {
   final IconData icon;
   final Color iconColor;
 
-  const VpnStatTile({
+   VpnStatTile({
     super.key,
     required this.label,
     required this.valueFormatter,
     required this.icon,
     required this.iconColor
   });
-
+final themeController = Get.find<ThemeController>();
   @override
   Widget build(BuildContext context) {
     return  Expanded(
@@ -23,10 +26,10 @@ class VpnStatTile<T> extends StatelessWidget {
                           left: 4, right: 4, top: 8, bottom: 8),
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: Theme.of(context).colorScheme.byteWidgetBackground,
             borderRadius: BorderRadius.circular(8),
              border: Border.all(
-              color: const Color.fromARGB(255, 226, 224, 224),
+              color:  Theme.of(context).colorScheme.byteWidgetBackgroundBorder,
               width: 1, // Thickness of the border
             ),
           
@@ -39,7 +42,7 @@ class VpnStatTile<T> extends StatelessWidget {
                 children: [
                   
                 
-                  Text(label, style: TextStyle(color: Colors.grey[700],fontSize: 14)),
+                  Text(label, style: TextStyle(color: Theme.of(context).colorScheme.byteLabelColor,fontSize: 14)),
                   
                 ],
               ),
@@ -49,8 +52,8 @@ class VpnStatTile<T> extends StatelessWidget {
                 children: [
               Text(
                valueFormatter, // Dynamically format the value
-                style: const TextStyle(
-                  color: Colors.blue,
+                style:  TextStyle(
+                  color: Theme.of(context).colorScheme.byteColor,
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
                 ),
