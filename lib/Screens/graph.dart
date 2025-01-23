@@ -6,6 +6,8 @@ import 'package:openvpn_app/controller/theme_controller.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:intl/intl.dart';
 
+import '../services/vpn_usage_service.dart';
+
 class ProtectedCardWidget extends StatefulWidget {
   final String? selectedIndex;
 
@@ -24,6 +26,7 @@ class _ProtectedCardWidgetState extends State<ProtectedCardWidget> {
   double barWidth = 20.0; // Set your bar width here
   double barSpacing = 10.0; // Optional: Space between bars
   DateTime now = DateTime.now();
+  final VpnUsageService _vpnUsageService = VpnUsageService();
   @override
   void initState() {
     super.initState();
@@ -62,9 +65,10 @@ class _ProtectedCardWidgetState extends State<ProtectedCardWidget> {
     String? storedData = prefs.getString(index);
 
     if (storedData != null) {
-      Map<String, int> vpnUsageData =
-          Map<String, int>.from(jsonDecode(storedData));
-
+      
+     
+          
+      Map<String, int> vpnUsageData = _vpnUsageService.removeOldWeekData(Map<String, int>.from(jsonDecode(storedData)));
       Map<String, double> weekData = {};
       
       for (int i = 0; i < 7; i++) {
@@ -72,6 +76,7 @@ class _ProtectedCardWidgetState extends State<ProtectedCardWidget> {
         DateTime day = now.subtract(Duration(days: i));
         String dateKey = DateFormat('yyyy-MM-dd').format(day);
         String dayName = DateFormat('EEE').format(day);
+        
         // Get the vpnUsageData value for the current day
         int usageInSeconds = vpnUsageData[dateKey] ?? 0;
         // Store the float value of hours
@@ -127,10 +132,10 @@ class _ProtectedCardWidgetState extends State<ProtectedCardWidget> {
       return Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: Theme.of(context).colorScheme.graphBackground,
           borderRadius: BorderRadius.circular(8),
           border: Border.all(
-            color: const Color.fromARGB(255, 226, 224, 224),
+            color: Theme.of(context).colorScheme.graphBorderColor,
             width: 1, // Thickness of the border
           ),
         ),
@@ -182,10 +187,10 @@ class _ProtectedCardWidgetState extends State<ProtectedCardWidget> {
       return Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: Theme.of(context).colorScheme.graphBackground,
           borderRadius: BorderRadius.circular(8),
           border: Border.all(
-            color: const Color.fromARGB(255, 226, 224, 224),
+            color: Theme.of(context).colorScheme.graphBorderColor,
             width: 1, // Thickness of the border
           ),
         ),
@@ -209,10 +214,10 @@ class _ProtectedCardWidgetState extends State<ProtectedCardWidget> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).colorScheme.graphBackground,
         borderRadius: BorderRadius.circular(8),
         border: Border.all(
-          color: const Color.fromARGB(255, 226, 224, 224),
+          color: Theme.of(context).colorScheme.graphBorderColor,
           width: 1, // Thickness of the border
         ),
       ),
@@ -285,7 +290,7 @@ class _ProtectedCardWidgetState extends State<ProtectedCardWidget> {
           // If VPN usage is present, use green
           else {
             
-            barColor = Theme.of(context).colorScheme.blankColor;
+            barColor = Theme.of(context).colorScheme.barColor;
           }
           if (isFuture) {
             blankColor = Theme.of(context).colorScheme.blankColorIsFuture;
@@ -330,7 +335,7 @@ class _ProtectedCardWidgetState extends State<ProtectedCardWidget> {
                 int todayIndex = days.indexOf(today);
                 String dayName = days[(value.toInt() + todayIndex) % 7];
                 return Text(dayName,
-                    style: const TextStyle(color: Colors.black));
+                    style:  TextStyle(color: Theme.of(context).colorScheme.graphBottomTile));
               },
             ),
           ),
@@ -338,9 +343,9 @@ class _ProtectedCardWidgetState extends State<ProtectedCardWidget> {
         barTouchData: BarTouchData(
           touchTooltipData: BarTouchTooltipData(
             getTooltipColor: (_) => Theme.of(context).colorScheme.tooltipColor,
-            tooltipPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            tooltipPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             tooltipHorizontalAlignment: FLHorizontalAlignment.center,
-            tooltipMargin:30,
+            tooltipMargin:55,
             getTooltipItem: (group, groupIndex, rod, rodIndex) {
               String day = daysInOrder[groupIndex.toInt()];
               double usageInHours = rod.toY;

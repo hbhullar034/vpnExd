@@ -6,7 +6,6 @@ import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 //import 'package:workmanager/workmanager.dart';
 //import 'package:shared_preferences/shared_preferences.dart';
-import 'constants/colors.dart';
 import './services/vpn_service.dart'; // Your custom VPN service
 import 'Screens/vpn_dashboard.dart';
 import 'controller/theme_controller.dart';
@@ -50,9 +49,11 @@ class MyAppLifecycleObserver extends WidgetsBindingObserver {
 void main() async {
   
   WidgetsFlutterBinding.ensureInitialized();
-  await GetStorage.init();
+  _vpnService.initialize();
   WidgetsBinding.instance.addObserver(MyAppLifecycleObserver());
-final themeController = Get.put(ThemeController());
+WidgetsFlutterBinding.ensureInitialized();
+  await GetStorage.init(); // Initialize GetStorage
+  Get.put(ThemeController()); // Register the controller
 
   // platform.setMethodCallHandler((call) async {
   //   if (call.method == "vpnCleanup") {
@@ -65,22 +66,23 @@ final themeController = Get.put(ThemeController());
   //   callbackDispatcher,
   //   isInDebugMode: true, // Disable for production
   // );
-runApp(MyApp(themeController: themeController));
+runApp(const MyApp());
 }
 class MyApp extends StatelessWidget {
-  final ThemeController themeController;
+  
 
-  const MyApp({super.key, required this.themeController});
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final themeController = Get.find<ThemeController>();
     return Obx(() {
       return GetMaterialApp(
-        debugShowCheckedModeBanner: false,
+       debugShowCheckedModeBanner: false,
         theme: themeController.isDarkMode.value
             ? themeController.darkTheme
             : themeController.lightTheme,
-        home: const LandingPage(),
+        home: const MaterialApp(home: Vpndashboard()),
       );
     });
   }
@@ -170,7 +172,8 @@ class _LandingPageState extends State<LandingPage> with WidgetsBindingObserver {
 
     // Navigate to VPN Dashboard after 3 seconds
     Future.delayed(const Duration(seconds: 3), () {
-      Navigator.pushReplacement(
+      print("testt");
+      Navigator.push(
         context,
         MaterialPageRoute(builder: (context) => const Vpndashboard()),
       );

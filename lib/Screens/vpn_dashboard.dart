@@ -521,7 +521,13 @@ class _VPNPageState extends State<VPNPage> {
                                   },
                                   child: CircleAvatar(
                                     radius: 50,
-                                    backgroundColor: Theme.of(context).colorScheme.circleBackgroundColor,
+                                    backgroundColor: (_vpnService.getConnectingStatus() == true &&
+                              stageResult != 'connected'
+                          ? Theme.of(context).colorScheme.circleBackgroundBlueColor
+                          : stageResult == 'connected'
+                              ? Theme.of(context).colorScheme.circleBackgroundGreenColor
+                              : Theme.of(context).colorScheme.circleBackgroundRedColor),
+                              
                                     child: Padding(
                                       padding: const EdgeInsets.only(top: 22.0),
                                       child: Column(
@@ -647,13 +653,14 @@ class _VPNPageState extends State<VPNPage> {
   }
 
   Widget _buildSelectedLocationDropdown(BuildContext context) {
+   
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const SizedBox(height: 10),
         Container(
   height: 55,
-  padding: const EdgeInsets.symmetric(horizontal: 16),
+  padding: const EdgeInsets.symmetric(horizontal: 14),
   decoration: BoxDecoration(
     color: Theme.of(context).colorScheme.dropdownColorBackground,
     borderRadius: BorderRadius.circular(8),
@@ -672,9 +679,7 @@ class _VPNPageState extends State<VPNPage> {
           fontWeight: FontWeight.w700,
         ),
       ),
-      dropdownColor: Theme.of(context).brightness == Brightness.dark
-          ? Colors.black // Semi-transparent dark background
-          : Theme.of(context).colorScheme.dropdownColorBackground, 
+      dropdownColor: Theme.of(context).colorScheme.dropdownListBackground, 
       icon: Icon(Icons.more_vert,
           color: Theme.of(context).colorScheme.dropdownColor),
       isExpanded: true,

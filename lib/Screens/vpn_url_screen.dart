@@ -256,6 +256,9 @@ class _VpnUrlScreenState extends State<VpnUrlScreen>
                   const SizedBox(height: 10),
                   TextField(
                     controller: urlController,
+                    style:  TextStyle(
+                    color: Theme.of(context).colorScheme.themeTextColor, // Text color
+                  ),
                     decoration: InputDecoration(
                       hintText: 'test.openvpn.ovpn',
                       border: const OutlineInputBorder(),

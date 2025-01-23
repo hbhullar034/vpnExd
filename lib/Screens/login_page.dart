@@ -10,6 +10,7 @@ import 'vpn_dashboard.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:get/get.dart';
+
 class LoginPage extends StatefulWidget {
   final Map<String, dynamic>? fileDetails; // For adding a new VPN
   final String? id; // For editing an existing VPN
@@ -30,7 +31,7 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController _profileNameController = TextEditingController();
   bool _obscureText = true;
   String? _editId; // Store the ID if we are editing an existing VPN
-final themeController = Get.find<ThemeController>();
+  final themeController = Get.find<ThemeController>();
   @override
   void initState() {
     super.initState();
@@ -68,7 +69,7 @@ final themeController = Get.find<ThemeController>();
           // Background image
           Positioned.fill(
             child: Container(
-              decoration:  BoxDecoration(
+              decoration: BoxDecoration(
                 image: DecorationImage(
                   image: AssetImage(themeController.innerImage),
                   fit: BoxFit.cover,
@@ -84,6 +85,9 @@ final themeController = Get.find<ThemeController>();
               children: [
                 TextField(
                   controller: _profileNameController,
+                  style:  TextStyle(
+                    color: Theme.of(context).colorScheme.themeTextColor, // Text color
+                  ),
                   decoration: const InputDecoration(
                     hintText: 'Profile Name',
                     border: OutlineInputBorder(),
@@ -93,6 +97,9 @@ final themeController = Get.find<ThemeController>();
                 // Username field
                 TextField(
                   controller: _usernameController,
+                  style:  TextStyle(
+                    color: Theme.of(context).colorScheme.themeTextColor, // Text color
+                  ),
                   decoration: const InputDecoration(
                     hintText: 'Username',
                     border: OutlineInputBorder(),
@@ -103,6 +110,9 @@ final themeController = Get.find<ThemeController>();
                 // Password field
                 TextField(
                   controller: _passwordController,
+                  style:  TextStyle(
+                    color: Theme.of(context).colorScheme.themeTextColor, // Text color
+                  ),
                   decoration: InputDecoration(
                     hintText: 'Password',
                     border: const OutlineInputBorder(),
@@ -128,8 +138,10 @@ final themeController = Get.find<ThemeController>();
                   height: 50, // Set the desired width here
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Theme.of(context).colorScheme.buttonBackgroundColor,
-                      foregroundColor:Theme.of(context).colorScheme.buttonTextColor,
+                      backgroundColor:
+                          Theme.of(context).colorScheme.buttonBackgroundColor,
+                      foregroundColor:
+                          Theme.of(context).colorScheme.buttonTextColor,
                       shape: RoundedRectangleBorder(
                         borderRadius:
                             BorderRadius.circular(10), // Rounded corners

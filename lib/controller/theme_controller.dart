@@ -112,6 +112,10 @@ extension CustomColorScheme on ColorScheme {
     final themeController = Get.find<ThemeController>(); // Access ThemeController here
     return themeController.isDarkMode.value ? const Color.fromARGB(0, 51, 47, 47) : Colors.white;
   }
+  Color get dropdownListBackground {
+    final themeController = Get.find<ThemeController>(); // Access ThemeController here
+    return themeController.isDarkMode.value ? Colors.black87 : Colors.white;
+  }
    Color get ipAddressColor {
     final themeController = Get.find<ThemeController>(); // Access ThemeController here
     return themeController.isDarkMode.value ? Colors.white : Colors.black;
@@ -120,9 +124,17 @@ extension CustomColorScheme on ColorScheme {
     final themeController = Get.find<ThemeController>(); // Access ThemeController here
     return themeController.isDarkMode.value ? Colors.white : Colors.grey;
   }
-   Color get circleBackgroundColor {
+   Color get circleBackgroundGreenColor {
     final themeController = Get.find<ThemeController>(); // Access ThemeController here
-    return themeController.isDarkMode.value ? Colors.transparent : Colors.white;
+    return themeController.isDarkMode.value ? const Color(0xFF213639).withOpacity(0.8) : Colors.white;
+  }
+  Color get circleBackgroundBlueColor {
+    final themeController = Get.find<ThemeController>(); // Access ThemeController here
+    return themeController.isDarkMode.value ? const Color(0xFF0F3065).withOpacity(0.8) : Colors.white;
+  }
+  Color get circleBackgroundRedColor {
+    final themeController = Get.find<ThemeController>(); // Access ThemeController here
+    return themeController.isDarkMode.value ? const Color(0xFF30254D).withOpacity(0.8) : Colors.white;
   }
   Color get byteColor {
     final themeController = Get.find<ThemeController>(); // Access ThemeController here
@@ -147,23 +159,35 @@ extension CustomColorScheme on ColorScheme {
   }
   Color get barColorIsFuture {
     final themeController = Get.find<ThemeController>(); // Access ThemeController here
-    return themeController.isDarkMode.value ? const Color(0xFFB9DBFF) : const Color(0xFFB9DBFF);
+    return themeController.isDarkMode.value ? Colors.green: Colors.green;
   }
   Color get blankColorIsFuture {
     final themeController = Get.find<ThemeController>(); // Access ThemeController here
-    return themeController.isDarkMode.value ? const Color(0xFFB9DBFF) : const Color(0xFFB9DBFF);
+    return themeController.isDarkMode.value ? Color(0xFFB8DCFF) : const Color(0xFFB8DCFF);
   }
   Color get blankColor {
     final themeController = Get.find<ThemeController>(); // Access ThemeController here
-    return themeController.isDarkMode.value ? const Color(0xFF0D4274) : const Color(0xFF0D4274);
+    return themeController.isDarkMode.value ? const Color(0xFFA00606) : const Color(0xFFA00606);
   }
   Color get tooltipColor {
     final themeController = Get.find<ThemeController>(); // Access ThemeController here
-    return themeController.isDarkMode.value ? const Color(0xFF0D4274) :const Color(0xFF0D4274);
+    return themeController.isDarkMode.value ? const Color(0xFFA00606) :const Color(0xFFA00606);
   }
   Color get graphHeading {
     final themeController = Get.find<ThemeController>(); // Access ThemeController here
-    return themeController.isDarkMode.value ? Colors.grey : Colors.grey;
+    return themeController.isDarkMode.value ? Colors.white : Colors.black;
+  }
+  Color get graphBackground {
+    final themeController = Get.find<ThemeController>(); // Access ThemeController here
+    return themeController.isDarkMode.value ? Colors.transparent :Colors.white;
+  }
+  Color get graphBorderColor {
+    final themeController = Get.find<ThemeController>(); // Access ThemeController here
+    return themeController.isDarkMode.value ? const Color.fromARGB(255, 226, 224, 224) :const Color.fromARGB(255, 226, 224, 224);
+  }
+  Color get graphBottomTile {
+    final themeController = Get.find<ThemeController>(); // Access ThemeController here
+    return themeController.isDarkMode.value ? Colors.white :Colors.black;
   }
 
   //button
@@ -182,5 +206,7 @@ extension CustomColorScheme on ColorScheme {
     final themeController = Get.find<ThemeController>(); // Access ThemeController here
     return themeController.isDarkMode.value ? Colors.white : Colors.white;
   }
+
+  //network page
 
 }

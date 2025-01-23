@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+
+import '../controller/theme_controller.dart';
 
 class CommonAppBar extends StatefulWidget implements PreferredSizeWidget {
   final GlobalKey<ScaffoldState> scaffoldKey;
@@ -16,7 +19,7 @@ class CommonAppBar extends StatefulWidget implements PreferredSizeWidget {
 
 class _CommonAppBarState extends State<CommonAppBar> {
   String appVersion = '';
-
+  final themeController = Get.find<ThemeController>();
   @override
   void initState() {
     super.initState();
@@ -55,16 +58,29 @@ class _CommonAppBarState extends State<CommonAppBar> {
       centerTitle: true,
       actions: [
         Padding(
-          padding: const EdgeInsets.only(top: 15.0, right: 16.0),
-          child: Text(
-            appVersion.isNotEmpty ? 'v $appVersion' : '-', // Show version
-            style: const TextStyle(
-              color: Color.fromARGB(255, 168, 167, 167),
-              fontSize: 14.0,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
+          padding: const EdgeInsets.only(right: 8.0),
+          child: Obx(() {
+            return InkWell(
+              onTap: () {
+                themeController.toggleTheme();
+              },
+              child: Container(
+                color: Colors.transparent,
+                padding: const EdgeInsets.all(2.0), // Increase touch area
+                child: Icon(
+                  themeController.isDarkMode.value
+                      ? Icons.light_mode
+                      : Icons.dark_mode,
+                  color: themeController.isDarkMode.value
+                      ? Colors.white
+                      : Colors.white,
+                ),
+              ),
+            );
+          }),
         ),
+
+        // Space between the last action and the edge
       ],
     );
   }

@@ -1,84 +1,127 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-
-import '../main.dart';
 import '../models/ips_detail_model.dart';
 import '../models/network_data.dart';
 import '../services/network_type_service.dart';
 import '../widgets/network_widgets.dart';
+import '../controller/theme_controller.dart';
+import 'common_app_bar.dart';
+import 'common_app_bar_with_drawer.dart';
 
-
-class NetworkTestScreen extends StatelessWidget {
+class NetworkTestScreen extends StatefulWidget {
   const NetworkTestScreen({super.key});
 
   @override
+  State<NetworkTestScreen> createState() => _NetworkTestScreenState();
+}
+
+class _NetworkTestScreenState extends State<NetworkTestScreen> {
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  final themeController = Get.find<ThemeController>();
+  final ipData = IPDetails.fromJson({}).obs;
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final ipData = IPDetails.fromJson({}).obs;
     APIs.getIPDetails(ipData: ipData);
 
     return Scaffold(
-      appBar: AppBar(title: Text('Network Test Screen')),
-
-      //refresh button
+      key: _scaffoldKey,
+      extendBodyBehindAppBar: true,
+      resizeToAvoidBottomInset: false,
+      appBar: CommonAppBar(scaffoldKey: _scaffoldKey),
+      drawer: const CommonDrawer(),
       floatingActionButton: Padding(
         padding: const EdgeInsets.only(bottom: 10, right: 10),
         child: FloatingActionButton(
-            onPressed: () {
-              ipData.value = IPDetails.fromJson({});
-              APIs.getIPDetails(ipData: ipData);
-            },
-            child: Icon(CupertinoIcons.refresh)),
+          onPressed: () {
+            ipData.value = IPDetails.fromJson({});
+            APIs.getIPDetails(ipData: ipData);
+          },
+          child: const Icon(CupertinoIcons.refresh),
+        ),
       ),
+      body: Stack(
+        children: [
+          // Background image
+          Positioned.fill(
+            child: Obx(
+              () => Container(
+                decoration: BoxDecoration(
+                  image: DecorationImage(
+                    image: AssetImage(themeController.innerImage),
+                    fit: BoxFit.cover,
+                  ),
+                ),
+              ),
+            ),
+          ),
 
-      body: Obx(
-        () => ListView(
-            physics: BouncingScrollPhysics(),
-            padding: EdgeInsets.only(
-                left: mq.width * .04,
-                right: mq.width * .04,
-                top: mq.height * .01,
-                bottom: mq.height * .1),
-            children: [
-              //ip
-              NetworkCard(
+          // Content
+          Obx(
+            () => ListView(
+              physics: const BouncingScrollPhysics(),
+              padding: const EdgeInsets.only(top: 200, left: 16, right: 16),
+              children: [
+                // IP Address
+                NetworkCard(
                   data: NetworkData(
-                      title: 'IP Address',
-                      subtitle: ipData.value.query,
-                      icon: Icon(CupertinoIcons.location_solid,
-                          color: Colors.blue))),
+                    title: 'IP Address',
+                    subtitle: ipData.value.query ?? 'Fetching...',
+                    icon: const Icon(
+                      CupertinoIcons.location_solid,
+                      color: Colors.blue,
+                    ),
+                  ),
+                ),
 
-              //isp
-              NetworkCard(
+                // Internet Provider
+                NetworkCard(
                   data: NetworkData(
-                      title: 'Internet Provider',
-                      subtitle: ipData.value.isp,
-                      icon: Icon(Icons.business, color: Colors.orange))),
+                    title: 'Internet Provider',
+                    subtitle: ipData.value.isp ?? 'Fetching...',
+                    icon: const Icon(Icons.business, color: Colors.orange),
+                  ),
+                ),
 
-              //location
-              NetworkCard(
+                // Location
+                NetworkCard(
                   data: NetworkData(
-                      title: 'Location',
-                      subtitle: ipData.value.country.isEmpty
-                          ? 'Fetching ...'
-                          : '${ipData.value.city}, ${ipData.value.regionName}, ${ipData.value.country}',
-                      icon: Icon(CupertinoIcons.location, color: Colors.pink))),
+                    title: 'Location',
+                    subtitle: ipData.value.country.isEmpty
+                        ? 'Fetching...'
+                        : '${ipData.value.city}, ${ipData.value.regionName}, ${ipData.value.country}',
+                    icon: const Icon(CupertinoIcons.location, color: Colors.pink),
+                  ),
+                ),
 
-              //pin code
-              NetworkCard(
+                // Pin-code
+                NetworkCard(
                   data: NetworkData(
-                      title: 'Pin-code',
-                      subtitle: ipData.value.zip,
-                      icon: Icon(CupertinoIcons.location_solid,
-                          color: Colors.cyan))),
+                    title: 'Pin-code',
+                    subtitle: ipData.value.zip ?? 'Fetching...',
+                    icon: const Icon(CupertinoIcons.location_solid,
+                        color: Colors.cyan),
+                  ),
+                ),
 
-              //timezone
-              NetworkCard(
+                // Timezone
+                NetworkCard(
                   data: NetworkData(
-                      title: 'Timezone',
-                      subtitle: ipData.value.timezone,
-                      icon: Icon(CupertinoIcons.time, color: Colors.green))),
-            ]),
+                    title: 'Timezone',
+                    subtitle: ipData.value.timezone ?? 'Fetching...',
+                    icon: const Icon(CupertinoIcons.time, color: Colors.green),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
