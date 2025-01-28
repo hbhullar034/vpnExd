@@ -83,51 +83,143 @@ class _LoginPageState extends State<LoginPage> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                TextField(
-                  controller: _profileNameController,
-                  style:  TextStyle(
-                    color: Theme.of(context).colorScheme.themeTextColor, // Text color
+                Container(
+                  decoration: BoxDecoration(
+                    color: Theme.of(context)
+                        .colorScheme
+                        .dropdownColorBackground, // Background color
+                    borderRadius: BorderRadius.circular(8), // Rounded corners
                   ),
-                  decoration: const InputDecoration(
-                    hintText: 'Profile Name',
-                    border: OutlineInputBorder(),
-                  ),
-                ),
-                const SizedBox(height: 20),
-                // Username field
-                TextField(
-                  controller: _usernameController,
-                  style:  TextStyle(
-                    color: Theme.of(context).colorScheme.themeTextColor, // Text color
-                  ),
-                  decoration: const InputDecoration(
-                    hintText: 'Username',
-                    border: OutlineInputBorder(),
-                  ),
-                ),
-                const SizedBox(height: 20),
-
-                // Password field
-                TextField(
-                  controller: _passwordController,
-                  style:  TextStyle(
-                    color: Theme.of(context).colorScheme.themeTextColor, // Text color
-                  ),
-                  decoration: InputDecoration(
-                    hintText: 'Password',
-                    border: const OutlineInputBorder(),
-                    suffixIcon: IconButton(
-                      icon: Icon(
-                        _obscureText ? Icons.visibility_off : Icons.visibility,
+                  padding: EdgeInsets.symmetric(
+                      horizontal: 12), // Padding inside the box
+                  child: TextField(
+                    controller: _profileNameController,
+                    style: TextStyle(
+                      color: Theme.of(context)
+                          .colorScheme
+                          .themeTextColor, // Text color
+                    ),
+                    textAlign: TextAlign.center,
+                    decoration: InputDecoration(
+                      hintText: 'Profile Name',
+                      hintStyle: TextStyle(
+                        color: Theme.of(context)
+                            .colorScheme
+                            .themeTextColor, // Hint text color
                       ),
-                      onPressed: () {
-                        setState(() {
-                          _obscureText = !_obscureText;
-                        });
-                      },
+                      border: InputBorder.none, // Remove default border
+                      focusedBorder: OutlineInputBorder(
+                        borderSide: BorderSide(
+                          color: Theme.of(context)
+                              .colorScheme
+                              .themeTextColor, // Focused border color
+                        ),
+                      ),
                     ),
                   ),
-                  obscureText: _obscureText,
+                ),
+
+                const SizedBox(height: 20),
+                Container(
+                  decoration: BoxDecoration(
+                    color: Theme.of(context)
+                        .colorScheme
+                        .dropdownColorBackground, // Background color
+                    borderRadius: BorderRadius.circular(8), // Rounded corners
+                  ),
+                  padding: EdgeInsets.symmetric(
+                      horizontal: 12), // Padding inside the box
+                  child: TextField(
+                    controller: _usernameController,
+                    style: TextStyle(
+                      color: Theme.of(context)
+                          .colorScheme
+                          .themeTextColor, // Text color
+                    ),
+                    textAlign: TextAlign.center,
+                    decoration: InputDecoration(
+                      hintText: 'Username',
+                      hintStyle: TextStyle(
+                        color: Theme.of(context)
+                            .colorScheme
+                            .themeTextColor, // Hint text color
+                      ),
+                      border: InputBorder.none, // Remove default border
+                      focusedBorder: OutlineInputBorder(
+                        borderSide: BorderSide(
+                          color: Theme.of(context)
+                              .colorScheme
+                              .themeTextColor, // Focused border color
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                // Username field
+
+                const SizedBox(height: 20),
+                Container(
+                  decoration: BoxDecoration(
+                    color: Theme.of(context)
+                        .colorScheme
+                        .dropdownColorBackground, // Background color
+                    borderRadius: BorderRadius.circular(8), // Rounded corners
+                  ),
+                  padding: EdgeInsets.symmetric(
+                      horizontal: 12), // Padding inside the box
+                  child: Stack(
+                    alignment:
+                        Alignment.center, // Ensures content stays centered
+                    children: [
+                      TextField(
+                        controller: _passwordController,
+                        style: TextStyle(
+                          color: Theme.of(context)
+                              .colorScheme
+                              .themeTextColor, // Text color
+                        ),
+                        textAlign: TextAlign.center,
+                        decoration: InputDecoration(
+                          hintText: 'Password',
+                          hintStyle: TextStyle(
+                            color: Theme.of(context)
+                                .colorScheme
+                                .themeTextColor, // Hint text color
+                          ),
+                          border: InputBorder.none, // Remove default border
+                          focusedBorder: OutlineInputBorder(
+                            borderSide: BorderSide(
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .themeTextColor, // Focused border color
+                            ),
+                          ),
+                          contentPadding: const EdgeInsets.only(
+                              right: 0), // Add padding to the right
+                        ),
+                        obscureText: _obscureText, // Obscure text for password
+                      ),
+                      Positioned(
+                        right: 0, // Position the icon to the right
+                        child: IconButton(
+                          icon: Icon(
+                            _obscureText
+                                ? Icons.visibility_off
+                                : Icons.visibility,
+                            color: Theme.of(context)
+                                .colorScheme
+                                .themeTextColor, // Icon color
+                          ),
+                          onPressed: () {
+                            setState(() {
+                              _obscureText =
+                                  !_obscureText; // Toggle obscureText
+                            });
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
 
                 const SizedBox(height: 20),

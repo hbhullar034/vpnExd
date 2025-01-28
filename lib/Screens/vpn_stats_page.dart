@@ -28,10 +28,7 @@ final themeController = Get.find<ThemeController>();
           decoration: BoxDecoration(
             color: Theme.of(context).colorScheme.byteWidgetBackground,
             borderRadius: BorderRadius.circular(8),
-             border: Border.all(
-              color:  Theme.of(context).colorScheme.byteWidgetBackgroundBorder,
-              width: 1, // Thickness of the border
-            ),
+            
           
           ),
           child: Column(

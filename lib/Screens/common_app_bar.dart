@@ -66,7 +66,7 @@ class _CommonAppBarState extends State<CommonAppBar> {
               },
               child: Container(
                 color: Colors.transparent,
-                padding: const EdgeInsets.all(2.0), // Increase touch area
+                padding: const EdgeInsets.all(8.0), // Increase touch area
                 child: Icon(
                   themeController.isDarkMode.value
                       ? Icons.light_mode

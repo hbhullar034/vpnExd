@@ -7,7 +7,6 @@ import 'package:openvpn_app/controller/theme_controller.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:path_provider/path_provider.dart' as path_provider;
 import 'package:http/http.dart' as http;
-import '../constants/colors.dart';
 import 'login_page.dart'; // Replace with the correct import path for your LoginPage
 import 'common_app_bar_with_drawer.dart'; // Replace with the correct import path for your drawer
 import 'package:get/get.dart';
@@ -28,7 +27,6 @@ class _VpnUrlScreenState extends State<VpnUrlScreen>
   int _currentIndex = 0;
   final themeController = Get.find<ThemeController>();
 
-
   @override
   void initState() {
     super.initState();
@@ -37,9 +35,7 @@ class _VpnUrlScreenState extends State<VpnUrlScreen>
       setState(() {
         _currentIndex = _tabController.index;
       });
-
     });
-   
   }
 
   @override
@@ -190,10 +186,11 @@ class _VpnUrlScreenState extends State<VpnUrlScreen>
     return Scaffold(
       key: _scaffoldKey,
       extendBodyBehindAppBar: true,
+      resizeToAvoidBottomInset: false,
       appBar: CommonAppBar(scaffoldKey: _scaffoldKey),
       drawer: const CommonDrawer(),
       body: Container(
-        decoration:  BoxDecoration(
+        decoration: BoxDecoration(
           image: DecorationImage(
             image: AssetImage(themeController.innerImage),
             fit: BoxFit.cover,
@@ -208,19 +205,23 @@ class _VpnUrlScreenState extends State<VpnUrlScreen>
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Icon(Icons.folder_open,
-                      size: 80, color: AppColors.fileIconColor),
+                  Icon(Icons.folder_open,
+                      size: 80,
+                      color: Theme.of(context).colorScheme.fileIconColor),
                   const SizedBox(height: 16),
-                   Text(
+                  Text(
                     '.OVPN',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold,color: Theme.of(context).colorScheme.themeTextColor),
+                    style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Theme.of(context).colorScheme.themeTextColor),
                   ),
                   const SizedBox(height: 16),
-                   Text(
+                  Text(
                     'Select all files related to a single profile.\nYou can import only one ".ovpn" profile at a time.\nThe maximum file size is 256 KB.',
                     textAlign: TextAlign.center,
-                    style: TextStyle(color: Theme.of(context).colorScheme.themeTextColor),
-                    
+                    style: TextStyle(
+                        color: Theme.of(context).colorScheme.themeTextColor),
                   ),
                   const SizedBox(height: 24),
                   SizedBox(
@@ -229,15 +230,18 @@ class _VpnUrlScreenState extends State<VpnUrlScreen>
                     child: ElevatedButton(
                       onPressed: _handleFileUpload,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Theme.of(context).colorScheme.buttonBackgroundColor,
-                        foregroundColor:Theme.of(context).colorScheme.buttonTextColor,
+                        backgroundColor:
+                            Theme.of(context).colorScheme.buttonBackgroundColor,
+                        foregroundColor:
+                            Theme.of(context).colorScheme.buttonTextColor,
                         elevation: 0,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(
                               10), // No rounded corners (sharp edges)
                         ),
                       ),
-                      child: const Text('Upload File',style: TextStyle(fontSize: 20)),
+                      child: const Text('Upload File',
+                          style: TextStyle(fontSize: 20)),
                     ),
                   )
                 ],
@@ -245,44 +249,71 @@ class _VpnUrlScreenState extends State<VpnUrlScreen>
             ),
             // URL Tab
             Padding(
-              padding: const EdgeInsets.all(16.0),
+              padding: const EdgeInsets.only(top: 120, left: 16.0, right: 16),
               child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.start,
                 children: [
-                   Text(
+                  Text(
                     'Type Server Address or Cloud ID',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold,color: Theme.of(context).colorScheme.themeTextColor),
+                    style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Theme.of(context).colorScheme.themeTextColor),
                   ),
                   const SizedBox(height: 10),
-                  TextField(
-                    controller: urlController,
-                    style:  TextStyle(
-                    color: Theme.of(context).colorScheme.themeTextColor, // Text color
-                  ),
-                    decoration: InputDecoration(
-                      hintText: 'test.openvpn.ovpn',
-                      border: const OutlineInputBorder(),
-                      focusedBorder: OutlineInputBorder(
-                        borderSide:
-                            BorderSide(color: Theme.of(context).primaryColor),
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Theme.of(context)
+                          .colorScheme
+                          .dropdownColorBackground, // Background color
+                      borderRadius: BorderRadius.circular(8), // Rounded corners
+                    ),
+                    padding: EdgeInsets.symmetric(
+                        horizontal: 12), // Padding inside the box
+                    child: TextField(
+                      controller: urlController,
+                      style: TextStyle(
+                        color: Theme.of(context)
+                            .colorScheme
+                            .themeTextColor, // Text color
+                      ),
+                      textAlign: TextAlign.center,
+                      decoration: InputDecoration(
+                        hintText: 'test.openvpn.ovpn',
+                        hintStyle: TextStyle(
+                          color: Theme.of(context)
+                              .colorScheme
+                              .themeTextColor, // Hint text color
+                        ),
+                        border: InputBorder.none, // Remove default border
+                        focusedBorder: OutlineInputBorder(
+                          borderSide: BorderSide(
+                            color: Theme.of(context)
+                                .colorScheme
+                                .themeTextColor, // Focused border color
+                          ),
+                        ),
                       ),
                     ),
                   ),
                   const SizedBox(height: 20),
                   SizedBox(
                     width: 250,
-                    height: 50, 
+                    height: 50,
                     child: ElevatedButton(
                       onPressed: _handleUrlSubmit,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Theme.of(context).colorScheme.buttonBackgroundColor,
-                        foregroundColor:Theme.of(context).colorScheme.buttonTextColor,
+                        backgroundColor:
+                            Theme.of(context).colorScheme.buttonBackgroundColor,
+                        foregroundColor:
+                            Theme.of(context).colorScheme.buttonTextColor,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(
                               10), // No rounded corners (sharp edges)
                         ),
                       ),
-                      child: const Text('Get URL',style: TextStyle(fontSize: 20)),
+                      child:
+                          const Text('Get URL', style: TextStyle(fontSize: 20)),
                     ),
                   )
                 ],
@@ -291,100 +322,101 @@ class _VpnUrlScreenState extends State<VpnUrlScreen>
           ],
         ),
       ),
-     bottomNavigationBar: Container(
-      padding: const EdgeInsets.symmetric(vertical: 10),
-      decoration: BoxDecoration(
-        color: AppColors.createMaterialColor(AppColors.primary),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.2),
-            blurRadius: 8,
-            offset: const Offset(0, -2),
-          ),
-        ],
+      bottomNavigationBar: Container(
+        padding: const EdgeInsets.symmetric(vertical: 10),
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.primeryTheme,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.2),
+              blurRadius: 8,
+              offset: const Offset(0, -2),
+            ),
+          ],
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            _buildCustomNavItem(
+              icon: Icons.upload_file,
+              label: 'Upload',
+              isActive: _currentIndex == 0,
+              onTap: () {
+                setState(() {
+                  _currentIndex = 0;
+                  _tabController.animateTo(0);
+                });
+              },
+            ),
+            _buildCustomNavItem(
+              icon: Icons.link,
+              label: 'URL',
+              isActive: _currentIndex == 1,
+              onTap: () {
+                setState(() {
+                  _currentIndex = 1;
+                  _tabController.animateTo(1);
+                });
+              },
+            ),
+          ],
+        ),
       ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: [
-          _buildCustomNavItem(
-            icon: Icons.upload_file,
-            label: 'Upload',
-            isActive: _currentIndex == 0,
-            onTap: () {
-              setState(() {
-                _currentIndex = 0;
-                _tabController.animateTo(0);
-              });
-            },
-          ),
-          _buildCustomNavItem(
-            icon: Icons.link,
-            label: 'URL',
-            isActive: _currentIndex == 1,
-            onTap: () {
-              setState(() {
-                _currentIndex = 1;
-                _tabController.animateTo(1);
-              });
-            },
-          ),
-        ],
-      ),
-    ),
     );
   }
 
   // Custom Navigation Item
-Widget _buildCustomNavItem({
-  required IconData icon,
-  required String label,
-  required bool isActive,
-  required VoidCallback onTap,
-}) {
-  return GestureDetector(
-    onTap: onTap,
-    child: Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Stack(
-          alignment: Alignment.center,
-          children: [
-            if (isActive)
-              Container(
-                width: 40,
-                height: 45,
-                decoration: BoxDecoration(
-                  color: AppColors.createMaterialColor(AppColors.primary),
-                  shape: BoxShape.rectangle,
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.2),
-                      blurRadius: 1,
-                      offset: const Offset(0, 1),
-                    ),
-                  ],
+  Widget _buildCustomNavItem({
+    required IconData icon,
+    required String label,
+    required bool isActive,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Stack(
+            alignment: Alignment.center,
+            children: [
+              if (isActive)
+                Container(
+                  width: 40,
+                  height: 45,
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.primeryTheme,
+                    shape: BoxShape.rectangle,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.2),
+                        blurRadius: 1,
+                        offset: const Offset(0, 1),
+                      ),
+                    ],
+                  ),
                 ),
+              Icon(
+                icon,
+                size: isActive ? 40 : 24,
+                color: isActive
+                    ? Colors.white
+                    : Colors.white
+                        .withOpacity(0.6),
               ),
-            Icon(
-              icon,
-              size: isActive ? 40 : 24,
-              color: isActive
-                  ? AppColors.createMaterialColor(AppColors.text)
-                  : AppColors.createMaterialColor(AppColors.text).withOpacity(0.6),
-            ),
-          ],
-        ),
-        const SizedBox(height: 4),
-        Text(
-          label,
-          style: TextStyle(
-            fontSize: isActive ? 14 : 12,
-            fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
-            color: AppColors.createMaterialColor(AppColors.text),
+            ],
           ),
-        ),
-      ],
-    ),
-  );
-}
+          const SizedBox(height: 4),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: isActive ? 14 : 12,
+              fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
+              color: Colors.white,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }

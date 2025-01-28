@@ -5,7 +5,6 @@ import 'package:package_info_plus/package_info_plus.dart';
 import '../controller/theme_controller.dart';
 import 'network_test.dart';
 import 'vpn_dashboard.dart';
-import '../constants/Colors.dart';
 import 'about_page.dart';
 import 'vpn_url_screen.dart';
 
@@ -55,9 +54,9 @@ Widget build(BuildContext context) {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Image.asset(
-                'assets/images/spalsh-logo.png',
-                height: 80, // Adjust logo size as needed
-                width: 80,
+                'assets/images/logo.png',
+                height: 100, // Adjust logo size as needed
+                width: 100,
                 fit: BoxFit.contain,
               ),
             ],
@@ -67,16 +66,15 @@ Widget build(BuildContext context) {
         // Middle section for menu items
         Expanded(
           child: Container(
-            color: AppColors.createMaterialColor(
-                AppColors.primary), // Set background color
+            color: Theme.of(context).colorScheme.primeryTheme, // Set background color
             child: ListView(
               padding: EdgeInsets.zero, // Remove padding
               children: [
                 ListTile(
                   leading:
-                      const Icon(Icons.home, color: AppColors.menuIconColor),
-                  title: const Text('Home',
-                      style: TextStyle(color: AppColors.menuTitleColor)),
+                       Icon(Icons.home, color: Theme.of(context).colorScheme.menuIconColor),
+                  title:  Text('Home',
+                      style: TextStyle(color: Theme.of(context).colorScheme.menuTitleColor)),
                   onTap: () {
                     void navigateToVpnDashboard(BuildContext context) {
                       if (ModalRoute.of(context)?.settings.name != null) {
@@ -97,10 +95,10 @@ Widget build(BuildContext context) {
                   },
                 ),
                 ListTile(
-                  leading: const Icon(Icons.settings,
-                      color: AppColors.menuIconColor),
-                  title: const Text('Create New Profile',
-                      style: TextStyle(color: AppColors.menuTitleColor)),
+                  leading:  Icon(Icons.settings,
+                      color: Theme.of(context).colorScheme.menuIconColor),
+                  title:  Text('Create New Profile',
+                      style: TextStyle(color: Theme.of(context).colorScheme.menuTitleColor)),
                   onTap: () {
                     Navigator.pop(context); // Close the drawer
                     Navigator.push(
@@ -112,11 +110,28 @@ Widget build(BuildContext context) {
                     );
                   },
                 ),
+               
+               
                 ListTile(
                   leading:
-                      const Icon(Icons.info, color: AppColors.menuIconColor),
-                  title: const Text('About',
-                      style: TextStyle(color: AppColors.menuTitleColor)),
+                       Icon(Icons.info, color: Theme.of(context).colorScheme.menuIconColor),
+                  title:  Text('Network',
+                      style: TextStyle(color: Theme.of(context).colorScheme.menuTitleColor)),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            const NetworkTestScreen(), // Destination screen
+                      ),
+                    );
+                  },
+                ),
+                 ListTile(
+                  leading:
+                       Icon(Icons.info, color: Theme.of(context).colorScheme.menuIconColor),
+                  title:  Text('About',
+                      style: TextStyle(color: Theme.of(context).colorScheme.menuTitleColor)),
                   onTap: () {
                     Navigator.pop(context); // Close the drawer
                     Navigator.push(
@@ -124,22 +139,6 @@ Widget build(BuildContext context) {
                       MaterialPageRoute(
                         builder: (context) =>
                             const AboutPage(), // Destination screen
-                      ),
-                    );
-                  },
-                ),
-               
-                ListTile(
-                  leading:
-                      const Icon(Icons.info, color: AppColors.menuIconColor),
-                  title: const Text('Network',
-                      style: TextStyle(color: AppColors.menuTitleColor)),
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) =>
-                            const NetworkTestScreen(), // Destination screen
                       ),
                     );
                   },

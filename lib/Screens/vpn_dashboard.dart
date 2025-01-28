@@ -9,7 +9,6 @@ import '../controller/theme_controller.dart';
 import '../main.dart';
 import '../services/network_service.dart';
 import 'common_app_bar.dart';
-import '../constants/colors.dart';
 import 'confirmation_dialog.dart';
 import 'common_app_bar_with_drawer.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -59,7 +58,7 @@ class _VPNPageState extends State<VPNPage> {
   String? connectingIndex = '';
   String? selectedIndex;
   bool _isButtonDisabled = false;
-
+ Offset _floatingButtonOffset =  Offset(300, 700);
   bool isDropdownOpen = false;
   String? ipAddress = '';
   String? cachedIpAddress; //store ip address
@@ -399,7 +398,7 @@ class _VPNPageState extends State<VPNPage> {
                           SizedBox(height: scaleHeightFirst),
                           Padding(
                                     padding: const EdgeInsets.symmetric(
-                                        horizontal: 20),
+                                        horizontal: 25),
                                     child:
                                         _buildSelectedLocationDropdown(context),
                                   ),
@@ -598,7 +597,7 @@ class _VPNPageState extends State<VPNPage> {
 
                                   // Additional stats and content
                                  
-                                  const SizedBox(height: 5),
+                                  const SizedBox(height: 15),
                                 ],
                               ),
                             ),
@@ -629,26 +628,64 @@ class _VPNPageState extends State<VPNPage> {
                       ),
               );
             }),
-      ]),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.push(
+      
+        Positioned(
+          left: _floatingButtonOffset.dx,
+          top: _floatingButtonOffset.dy,
+          child: Draggable(
+            feedback: FloatingActionButton(
+              onPressed: null, // Non-interactive during drag
+              foregroundColor: Theme.of(context).colorScheme.buttonTextColor,
+              backgroundColor:
+                  Theme.of(context).colorScheme.buttonBackgroundColor,
+              shape: CircleBorder(
+                side: BorderSide(
+                  color: Theme.of(context).colorScheme.buttonBackgroundColor,
+                  width: 2,
+                ),
+              ),
+              child: const Icon(Icons.add),
+            ),
+            childWhenDragging: SizedBox(), // Placeholder during drag
+            onDragEnd: (details) {
+              setState(() {
+                // Prevent the button from going outside the screen
+                final newOffset = details.offset;
+
+                final screenWidth = MediaQuery.of(context).size.width;
+                final screenHeight = MediaQuery.of(context).size.height;
+
+                // Constrain within screen bounds
+                _floatingButtonOffset = Offset(
+                  newOffset.dx.clamp(10, screenWidth - 56), // 56 is FAB size
+                  newOffset.dy.clamp(56, screenHeight - 56),
+                );
+              });
+            },
+            child: FloatingActionButton(
+              onPressed: () {
+                 Navigator.push(
             context,
             MaterialPageRoute(
               builder: (context) => const VpnUrlScreen(), // Destination screen
             ),
           );
-        },
-        foregroundColor: AppColors.createMaterialColor(AppColors.text),
-        backgroundColor: AppColors.createMaterialColor(AppColors.primary),
-        shape: const CircleBorder(
-          side: BorderSide(
-            color: AppColors.primary, // Border color
-            width: 2, // Border width
+              },
+              foregroundColor: Theme.of(context).colorScheme.buttonTextColor,
+              backgroundColor:
+                  Theme.of(context).colorScheme.buttonBackgroundColor,
+              shape: CircleBorder(
+                side: BorderSide(
+                  color: Theme.of(context).colorScheme.buttonBackgroundColor,
+                  width: 2,
+                ),
+              ),
+              child: const Icon(Icons.add),
+            ),
           ),
         ),
-        child: const Icon(Icons.add),
-      ),
+      ]),
+     
     );
   }
 
@@ -660,14 +697,11 @@ class _VPNPageState extends State<VPNPage> {
         const SizedBox(height: 10),
         Container(
   height: 55,
-  padding: const EdgeInsets.symmetric(horizontal: 14),
+  padding: const EdgeInsets.symmetric(horizontal: 20),
   decoration: BoxDecoration(
     color: Theme.of(context).colorScheme.dropdownColorBackground,
     borderRadius: BorderRadius.circular(8),
-    border: Border.all(
-      color: const Color.fromARGB(255, 226, 224, 224),
-      width: 1, // Thickness of the border
-    ),
+   
   ),
   child: DropdownButtonHideUnderline(
     child: DropdownButton<String>(

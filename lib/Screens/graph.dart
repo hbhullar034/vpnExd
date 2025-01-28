@@ -157,7 +157,7 @@ class _ProtectedCardWidgetState extends State<ProtectedCardWidget> {
             ),
             const SizedBox(height: 16),
             SizedBox(
-              height: 120,
+              height: 90,
               child: buildBarChart({
                 "Mon": 0.0,
                 "Tue": 0.0,
@@ -203,7 +203,7 @@ class _ProtectedCardWidgetState extends State<ProtectedCardWidget> {
             ),
             const SizedBox(height: 16),
             SizedBox(
-              height: 120,
+              height: 90,
               child: buildBarChart(vpnUsageData!, maxY),
             ),
           ],
@@ -230,7 +230,7 @@ class _ProtectedCardWidgetState extends State<ProtectedCardWidget> {
           ),
           const SizedBox(height: 16),
           SizedBox(
-            height: 120,
+            height: 90,
             child: buildBarChart(vpnUsageData!, 2),
           ),
         ],

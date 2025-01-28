@@ -12,7 +12,7 @@ class NetworkCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-        elevation: 5,
+        color: Colors.blueGrey[50],
         margin: EdgeInsets.symmetric(vertical: mq.height * .01),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
         child: InkWell(
