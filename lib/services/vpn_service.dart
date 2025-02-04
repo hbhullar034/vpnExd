@@ -1,10 +1,11 @@
-import 'dart:convert';
 import 'dart:async';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:flutter/material.dart';
+import 'dart:convert';
 
-import '../models/vpn_status_model.dart';
+import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
 import '../models/vpn_data_model.dart';
+import '../models/vpn_status_model.dart';
 import 'openvpn_service.dart';
 import 'vpn_usage_service.dart';
 

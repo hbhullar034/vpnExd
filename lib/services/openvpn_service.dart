@@ -1,9 +1,11 @@
 import 'dart:async';
 import 'dart:io';
-import 'package:shared_preferences/shared_preferences.dart';
+
 import 'package:openvpn_flutter/openvpn_flutter.dart' as vpn_flutter; // Import with prefix
-import '../models/vpn_status_model.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
 import '../models/vpn_data_model.dart';
+import '../models/vpn_status_model.dart';
 import 'vpn_usage_service.dart';
 
 class OpenVpnService {
@@ -27,8 +29,8 @@ class OpenVpnService {
   Future<void> initialize() async {
     try {
       await engine.initialize(
-        groupIdentifier: "group.com.laskarmedia.vpn",
-        providerBundleIdentifier: "id.laskarmedia.openvpnFlutterExample.VPNExtension",
+        groupIdentifier: "group.com.exd.vpn",
+        providerBundleIdentifier: "com.exd.vpn.vdesk.extension",
         localizedDescription: "VPN by YourCompany",
       );
       _saveLog("VPN initialized successfully.");
@@ -75,11 +77,12 @@ class OpenVpnService {
         "US",
         username: vpnData.username,
         password: vpnData.password,
-        certIsRequired: true,
+        bypassPackages: [],
+        certIsRequired: false,
       );
       
     } catch (e) {
-      _saveLog("Error during VPN connection: $e");
+      //_saveLog("Error during VPN connection: $e");
       //throw Exception("Unable to reach the VPN server. $e");
     }
   }
@@ -157,15 +160,7 @@ class OpenVpnService {
   }
 
   Future<void> _saveLog(String log) async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      final logs = prefs.getStringList('vpn_logs') ?? [];
-      logs.add("${DateTime.now().toIso8601String()}: $log");
-      await prefs.setStringList('vpn_logs', logs);
-    } catch (e) {
-      // ignore: avoid_print
-      print("Error saving log to SharedPreferences: $e");
-    }
+  
   }
 
   Future<List<String>> getLogs() async {
