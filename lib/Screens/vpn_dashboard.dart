@@ -1,4 +1,4 @@
-// ignore_for_file: unnecessary_null_comparison
+// ignore_for_file: unnecessary_null_comparison, use_build_context_synchronously
 
 import 'dart:async';
 import 'dart:convert';
@@ -58,7 +58,7 @@ class _VPNPageState extends State<VPNPage> {
   String? connectingIndex = '';
   String? selectedIndex;
   bool _isButtonDisabled = false;
- Offset _floatingButtonOffset =  Offset(300, 700);
+  Offset _floatingButtonOffset = const Offset(300, 700);
   bool isDropdownOpen = false;
   String? ipAddress = '';
   String? cachedIpAddress; //store ip address
@@ -145,39 +145,37 @@ class _VPNPageState extends State<VPNPage> {
   }
 
   void _showNetworkErrorDialog() {
-   if (_isOffline && !_isDialogOpen) {
-  _isDialogOpen = true;
-  showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      // Close the dialog automatically after 3 seconds
-      Future.delayed(const Duration(seconds: 6), () {
-        if (Navigator.of(context).canPop()) {
-          _isOffline = false;
-          _isOffline = false;
-          Navigator.of(context).pop();
-        }
-      });
-
-      return AlertDialog(
-        title: const Text('Network Error'),
-        content:
-            const Text('You are offline. Please check your connection.'),
-        actions: <Widget>[
-          TextButton(
-            onPressed: () {
+    if (_isOffline && !_isDialogOpen) {
+      _isDialogOpen = true;
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          // Close the dialog automatically after 3 seconds
+          Future.delayed(const Duration(seconds: 6), () {
+            if (Navigator.of(context).canPop()) {
               _isOffline = false;
               _isOffline = false;
               Navigator.of(context).pop();
-            },
-            child: const Text('OK'),
-          ),
-        ],
-      );
-    },
-  );
+            }
+          });
 
-      
+          return AlertDialog(
+            title: const Text('Network Error'),
+            content:
+                const Text('You are offline. Please check your connection.'),
+            actions: <Widget>[
+              TextButton(
+                onPressed: () {
+                  _isOffline = false;
+                  _isOffline = false;
+                  Navigator.of(context).pop();
+                },
+                child: const Text('OK'),
+              ),
+            ],
+          );
+        },
+      );
     }
   }
 
@@ -361,6 +359,8 @@ class _VPNPageState extends State<VPNPage> {
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
     mq = MediaQuery.sizeOf(context);
     // Get the current orientation (portrait or landscape)
     final orientation = MediaQuery.of(context).orientation;
@@ -392,243 +392,11 @@ class _VPNPageState extends State<VPNPage> {
                   ),
                 ),
                 child: orientation == Orientation.portrait
-                    ? Column(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          SizedBox(height: scaleHeightFirst),
-                          Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 25),
-                                    child:
-                                        _buildSelectedLocationDropdown(context),
-                                  ),
-                                   Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 20),
-                                    child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        VpnStatTile(
-                                            label: 'Byte In',
-                                            valueFormatter: formatBytes(
-                                                (status?.byteIn ?? 0)
-                                                    .toDouble()),
-                                            icon: Icons.arrow_downward,
-                                            iconColor: Colors.red),
-                                        VpnStatTile(
-                                            label: 'Byte Out',
-                                            valueFormatter: formatBytes(
-                                                (status?.byteOut ?? 0)
-                                                    .toDouble()),
-                                            icon: Icons.arrow_upward,
-                                            iconColor: Colors.green),
-                                      ],
-                                    ),
-                                  ),
-                          
-                           Text(
-                            "Connected Time ",
-                            style: TextStyle(color: Theme.of(context).colorScheme.connectingColor, fontSize: 18),
-                          ),
-                          //const SizedBox(height: 5),
-                          ValueListenableBuilder<OpenVpnStatus?>(
-                            valueListenable:
-                                _vpnService.getCurrentStatusNotifier(),
-                            builder: (context, status, child) {
-                              return Text(
-                                _formattedDuration(status),
-                                style:  TextStyle(
-                                  color:  Theme.of(context).colorScheme.connectingColor,
-                                  fontSize: 32,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              );
-                            },
-                          ),
-                          //SizedBox(height: scaleHeightSecond),
-                          AnimatedContainer(
-                            duration: const Duration(
-                                milliseconds: 200), // Duration for animation
-                            curve: Curves.easeInOut, // Smooth animation
-                            child: Transform.scale(
-                              scale:
-                                  _scaleFactor, // Apply scale factor to the whole container
-                              child: Container(
-                                width: 230, // Keep the base width
-                                height: 230,
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  border: Border.all(
-                                    color: getBorderColor(stageResult),
-                                    width: 12,
-                                  ),
-                                ),
-                                child: InkWell(
-                                  // Wrap the whole container with InkWell
-                                  onTap: () async {
-                                    if (_isButtonDisabled) {
-                                      return; // Prevent multiple clicks
-                                    }
-
-                                    setState(() {
-                                      _isButtonDisabled =
-                                          true; // Disable the button
-                                    });
-
-                                    try {
-                                      if (stageResult == 'connected') {
-                                        // Disconnect logic
-                                        await _disconnectVpn();
-                                      } else {
-                                        // Connect logic
-                                        if (selectedIndex != null &&
-                                            vpnData.isNotEmpty) {
-                                           _connectVpn(selectedIndex!);
-                                          await Future.delayed(
-                                              const Duration(seconds: 3));
-                                          // Re-enable the button after completing the operation
-                                          setState(() {
-                                            _isButtonDisabled = false;
-                                          });
-                                          // Optional: Add a delay after connecting (if needed)
-                                        } else {
-                                          ScaffoldMessenger.of(context)
-                                              .showSnackBar(
-                                            const SnackBar(
-                                                content: Text(
-                                                    "Please select a VPN")),
-                                          );
-                                        }
-                                      }
-                                    } catch (e) {
-                                      // Handle any errors if needed
-                                      ScaffoldMessenger.of(context)
-                                          .showSnackBar(
-                                        SnackBar(
-                                            content:
-                                                Text("An error occurred: $e")),
-                                      );
-                                    } finally {
-                                      await Future.delayed(
-                                          const Duration(seconds: 3));
-                                      // Re-enable the button after completing the operation
-                                      setState(() {
-                                        _isButtonDisabled = false;
-                                      });
-                                    }
-                                  },
-                                  child: CircleAvatar(
-                                    radius: 50,
-                                    backgroundColor: (_vpnService.getConnectingStatus() == true &&
-                              stageResult != 'connected'
-                          ? Theme.of(context).colorScheme.circleBackgroundBlueColor
-                          : stageResult == 'connected'
-                              ? Theme.of(context).colorScheme.circleBackgroundGreenColor
-                              : Theme.of(context).colorScheme.circleBackgroundRedColor),
-                              
-                                    child: Padding(
-                                      padding: const EdgeInsets.only(top: 22.0),
-                                      child: Column(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.start,
-                                        children: [
-                                          Icon(
-                                            Icons.power_settings_new,
-                                            color:
-                                                _vpnService.getConnectingStatus() ==
-                                                            true &&
-                                                        stageResult !=
-                                                            'connected'
-                                                    ? Colors.blue
-                                                    : stageResult == 'connected'
-                                                        ? Colors.green
-                                                        : Colors.red,
-                                            size: 60,
-                                          ),
-                                          const SizedBox(height: 10),
-                                           Text(
-                                            "Your IP",
-                                            style: TextStyle(
-                                              color: Theme.of(context).colorScheme.ipAddressNameColor,
-                                              fontSize: 15,
-                                            ),
-                                            textAlign: TextAlign.center,
-                                          ),
-                                          ipTextFieldWidget(stageResult),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-
-                          // Adjust layout based on orientation
-                          // Portrait Layout (SingleChildScrollView)
-                          Expanded(
-                            child: SingleChildScrollView(
-                              controller: _scrollController,
-                              child: Column(
-                                children: [
-                                  
-
-                                  const SizedBox(height: 50),
-                                  // Stack of VPN Info and other widgets
-                                  Stack(
-                                    children: <Widget>[
-                                      Container(
-                                        margin: const EdgeInsets.only(
-                                            left: 4,
-                                            right: 4,
-                                            top: 0,
-                                            bottom: 0),
-                                        padding: const EdgeInsets.only(
-                                            left: 20,
-                                            right: 20,
-                                            top: 0,
-                                            bottom: 0),
-                                        child: ProtectedCardWidget(
-                                            selectedIndex: selectedIndex),
-                                      ),
-                                    ],
-                                  ),
-
-                                  // Additional stats and content
-                                 
-                                  const SizedBox(height: 15),
-                                ],
-                              ),
-                            ),
-                          )
-                        ],
-                      )
-                    : Container(
-                        padding: const EdgeInsets.only(
-                            top: 170), // Add padding for top alignment
-                        child: const Row(
-                          children: [
-                            SizedBox(
-                                height: 80), // For some space from the left
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  // Layout adjusted for landscape
-                                  Text("Landscape Mode upadte Soon"),
-                                  // Add any widgets you want in landscape mode here
-                                  // For example:
-                                  SizedBox(height: 5),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
+                    ? _buildPortraitLayout(
+                        screenWidth, screenHeight, stageResult, status)
+                    : _buildLandscapeLayout(screenWidth, screenHeight),
               );
             }),
-      
         Positioned(
           left: _floatingButtonOffset.dx,
           top: _floatingButtonOffset.dy,
@@ -664,12 +432,13 @@ class _VPNPageState extends State<VPNPage> {
             },
             child: FloatingActionButton(
               onPressed: () {
-                 Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => const VpnUrlScreen(), // Destination screen
-            ),
-          );
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) =>
+                        const VpnUrlScreen(), // Destination screen
+                  ),
+                );
               },
               foregroundColor: Theme.of(context).colorScheme.buttonTextColor,
               backgroundColor:
@@ -685,124 +454,324 @@ class _VPNPageState extends State<VPNPage> {
           ),
         ),
       ]),
-     
+    );
+  }
+
+  Widget _buildPortraitLayout(
+      double screenWidth, double screenHeight, String stageResult, status) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        SizedBox(height: scaleHeightFirst),
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.05),
+          child: _buildSelectedLocationDropdown(context),
+        ),
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.05),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              VpnStatTile(
+                  label: 'Byte In',
+                  valueFormatter: formatBytes((status?.byteIn ?? 0).toDouble()),
+                  icon: Icons.arrow_downward,
+                  iconColor: Colors.red),
+              VpnStatTile(
+                  label: 'Byte Out',
+                  valueFormatter:
+                      formatBytes((status?.byteOut ?? 0).toDouble()),
+                  icon: Icons.arrow_upward,
+                  iconColor: Colors.green),
+            ],
+          ),
+        ),
+
+        Text(
+          "Connected Time ",
+          style: TextStyle(
+              color: Theme.of(context).colorScheme.connectingColor,
+              fontSize: 18),
+        ),
+        //const SizedBox(height: 5),
+        ValueListenableBuilder<OpenVpnStatus?>(
+          valueListenable: _vpnService.getCurrentStatusNotifier(),
+          builder: (context, status, child) {
+            return Text(
+              _formattedDuration(status),
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.connectingColor,
+                fontSize: 32,
+                fontWeight: FontWeight.bold,
+              ),
+            );
+          },
+        ),
+        //SizedBox(height: scaleHeightSecond),
+        AnimatedContainer(
+          duration: const Duration(milliseconds: 200), // Duration for animation
+          curve: Curves.easeInOut, // Smooth animation
+          child: Transform.scale(
+            scale: _scaleFactor, // Apply scale factor to the whole container
+            child: Container(
+              width: 230, // Keep the base width
+              height: 230,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: getBorderColor(stageResult),
+                  width: 12,
+                ),
+              ),
+              child: InkWell(
+                // Wrap the whole container with InkWell
+                onTap: () async {
+                  if (_isButtonDisabled) {
+                    return; // Prevent multiple clicks
+                  }
+
+                  setState(() {
+                    _isButtonDisabled = true; // Disable the button
+                  });
+
+                  try {
+                    if (stageResult == 'connected') {
+                      // Disconnect logic
+                      await _disconnectVpn();
+                    } else {
+                      // Connect logic
+                      if (selectedIndex != null && vpnData.isNotEmpty) {
+                        _connectVpn(selectedIndex!);
+                        await Future.delayed(const Duration(seconds: 3));
+                        // Re-enable the button after completing the operation
+                        setState(() {
+                          _isButtonDisabled = false;
+                        });
+                        // Optional: Add a delay after connecting (if needed)
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text("Please select a VPN")),
+                        );
+                      }
+                    }
+                  } catch (e) {
+                    // Handle any errors if needed
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text("An error occurred: $e")),
+                    );
+                  } finally {
+                    await Future.delayed(const Duration(seconds: 3));
+                    // Re-enable the button after completing the operation
+                    setState(() {
+                      _isButtonDisabled = false;
+                    });
+                  }
+                },
+                child: CircleAvatar(
+                  radius: 50,
+                  backgroundColor: (_vpnService.getConnectingStatus() == true &&
+                          stageResult != 'connected'
+                      ? Theme.of(context).colorScheme.circleBackgroundBlueColor
+                      : stageResult == 'connected'
+                          ? Theme.of(context)
+                              .colorScheme
+                              .circleBackgroundGreenColor
+                          : Theme.of(context)
+                              .colorScheme
+                              .circleBackgroundRedColor),
+                  child: Padding(
+                    padding: const EdgeInsets.only(top: 22.0),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        Icon(
+                          Icons.power_settings_new,
+                          color: _vpnService.getConnectingStatus() == true &&
+                                  stageResult != 'connected'
+                              ? Colors.blue
+                              : stageResult == 'connected'
+                                  ? Colors.green
+                                  : Colors.red,
+                          size: 60,
+                        ),
+                        SizedBox(height: screenHeight * 0.04),
+                        Text(
+                          "Your IP",
+                          style: TextStyle(
+                            color: Theme.of(context)
+                                .colorScheme
+                                .ipAddressNameColor,
+                            fontSize: 15,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                        ipTextFieldWidget(stageResult),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+
+        // Adjust layout based on orientation
+        // Portrait Layout (SingleChildScrollView)
+        Expanded(
+          child: SingleChildScrollView(
+            controller: _scrollController,
+            child: Column(
+              children: [
+                const SizedBox(height: 50),
+                // Stack of VPN Info and other widgets
+                Stack(
+                  children: <Widget>[
+                    Container(
+                      margin: const EdgeInsets.only(
+                          left: 4, right: 4, top: 0, bottom: 0),
+                      padding: const EdgeInsets.only(
+                          left: 20, right: 20, top: 0, bottom: 0),
+                      child: ProtectedCardWidget(selectedIndex: selectedIndex),
+                    ),
+                  ],
+                ),
+
+                // Additional stats and content
+
+                 SizedBox(height: screenHeight * 0.04),
+              ],
+            ),
+          ),
+        )
+      ],
+    );
+  }
+
+  Widget _buildLandscapeLayout(double screenWidth, double screenHeight) {
+    return Center(
+      child: Text(
+        "Landscape Mode Update Soon",
+        style: TextStyle(fontSize: screenWidth * 0.05), // 5% of screen width
+      ),
     );
   }
 
   Widget _buildSelectedLocationDropdown(BuildContext context) {
-   
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const SizedBox(height: 10),
         Container(
-  height: 55,
-  padding: const EdgeInsets.symmetric(horizontal: 20),
-  decoration: BoxDecoration(
-    color: Theme.of(context).colorScheme.dropdownColorBackground,
-    borderRadius: BorderRadius.circular(8),
-   
-  ),
-  child: DropdownButtonHideUnderline(
-    child: DropdownButton<String>(
-      value: selectedIndex, // String as value
-      hint: Text(
-        vpnData.isNotEmpty ? "Choose a VPN" : "No records",
-        style: TextStyle(
-          color: Theme.of(context).colorScheme.dropdownColor,
-          fontWeight: FontWeight.w700,
-        ),
-      ),
-      dropdownColor: Theme.of(context).colorScheme.dropdownListBackground, 
-      icon: Icon(Icons.more_vert,
-          color: Theme.of(context).colorScheme.dropdownColor),
-      isExpanded: true,
-      
-    
-      items: vpnData.map((VpnData data) {
-        return DropdownMenuItem<String>(
-          value: data.id, // Set the value to VpnData.id
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              Expanded(
-                child: Text(
-                  data.userProfile,
-                  style: TextStyle(
-                    color: Theme.of(context).colorScheme.dropdownColor,
-                    fontWeight: FontWeight.w700,
-                  ),
+          height: 55,
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.dropdownColorBackground,
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: DropdownButtonHideUnderline(
+            child: DropdownButton<String>(
+              value: selectedIndex, // String as value
+              hint: Text(
+                vpnData.isNotEmpty ? "Choose a VPN" : "No records",
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.dropdownColor,
+                  fontWeight: FontWeight.w700,
                 ),
               ),
-              Row(
-                children: [
-                  IconButton(
-                    icon: Icon(Icons.edit,
-                        color: Theme.of(context).colorScheme.dropdownColor),
-                    onPressed: () {
-                      if (data.id == connectingIndex &&
-                          _vpnService.getConnectingStatus() == true) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text(
-                                "Please disconnect the VPN first, then Edit."),
-                          ),
-                        );
-                      } else {
-                        editVpnProfile(context, data.id);
-                      }
-                    },
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.delete, color: Colors.red),
-                    onPressed: () {
-                      if (data.id == connectingIndex &&
-                          _vpnService.getConnectingStatus() == true) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text(
-                                "Please disconnect the VPN first, then delete."),
-                          ),
-                        );
-                      } else {
-                        deleteVpnProfile(context, data.id);
-                      }
-                      if (data.id != selectedIndex) {
-                        Navigator.pop(
-                            context); // Only pop after the state is updated
-                      }
-                    },
-                  ),
-                ],
-              ),
-            ],
-          ),
-        );
-      }).toList(),
-      onChanged: (String? newId) {
-        if (newId != selectedIndex) {
-          setState(() {
-            isDropdownOpen = newId != null; // Update dropdown open state
-            selectedIndex = newId; // Update selected ID
-            if (_vpnService.getConnectingStatus() == true && newId != null) {
-              alreadyConnected(
-                context,
-                vpnData.firstWhere((data) => data.id == newId),
-                newId,
-              );
-            }
-          });
-        }
-      },
-      onTap: () {
-        setState(() {
-          isDropdownOpen = true; // Set the state when dropdown is opened
-        });
-      },
-    ),
-  ),
-),
+              dropdownColor:
+                  Theme.of(context).colorScheme.dropdownListBackground,
+              icon: Icon(Icons.more_vert,
+                  color: Theme.of(context).colorScheme.dropdownColor),
+              isExpanded: true,
 
+              items: vpnData.map((VpnData data) {
+                return DropdownMenuItem<String>(
+                  value: data.id, // Set the value to VpnData.id
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      Expanded(
+                        child: Text(
+                          data.userProfile,
+                          style: TextStyle(
+                            color: Theme.of(context).colorScheme.dropdownColor,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ),
+                      Row(
+                        children: [
+                          IconButton(
+                            icon: Icon(Icons.edit,
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .dropdownColor),
+                            onPressed: () {
+                              if (data.id == connectingIndex &&
+                                  _vpnService.getConnectingStatus() == true) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text(
+                                        "Please disconnect the VPN first, then Edit."),
+                                  ),
+                                );
+                              } else {
+                                editVpnProfile(context, data.id);
+                              }
+                            },
+                          ),
+                          IconButton(
+                            icon: const Icon(Icons.delete, color: Colors.red),
+                            onPressed: () {
+                              if (data.id == connectingIndex &&
+                                  _vpnService.getConnectingStatus() == true) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text(
+                                        "Please disconnect the VPN first, then delete."),
+                                  ),
+                                );
+                              } else {
+                                deleteVpnProfile(context, data.id);
+                              }
+                              if (data.id != selectedIndex) {
+                                Navigator.pop(
+                                    context); // Only pop after the state is updated
+                              }
+                            },
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                );
+              }).toList(),
+              onChanged: (String? newId) {
+                if (newId != selectedIndex) {
+                  setState(() {
+                    isDropdownOpen =
+                        newId != null; // Update dropdown open state
+                    selectedIndex = newId; // Update selected ID
+                    if (_vpnService.getConnectingStatus() == true &&
+                        newId != null) {
+                      alreadyConnected(
+                        context,
+                        vpnData.firstWhere((data) => data.id == newId),
+                        newId,
+                      );
+                    }
+                  });
+                }
+              },
+              onTap: () {
+                setState(() {
+                  isDropdownOpen =
+                      true; // Set the state when dropdown is opened
+                });
+              },
+            ),
+          ),
+        ),
       ],
     );
   }
@@ -904,7 +873,6 @@ class _VPNPageState extends State<VPNPage> {
                 const Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                   
                     SizedBox(width: 10),
                     Text(
                       'Connecting...',
@@ -917,16 +885,19 @@ class _VPNPageState extends State<VPNPage> {
                 )
               else if (snapshot.hasError)
                 Text(ipAddress ?? 'Fetching IP...',
-                    style:  TextStyle(
-                        color:Theme.of(context).colorScheme.ipAddressColor,
-                      fontSize: 15, fontWeight: FontWeight.bold))
+                    style: TextStyle(
+                        color: Theme.of(context).colorScheme.ipAddressColor,
+                        fontSize: 15,
+                        fontWeight: FontWeight.bold))
               else if (snapshot.hasData)
                 Text(
                   _vpnService.getConnectingStatus() == true
                       ? (snapshot.data!.serverName)
                       : (ipAddress ?? 'Not found'),
-                  style:  TextStyle(color:Theme.of(context).colorScheme.ipAddressColor,
-                      fontSize: 15, fontWeight: FontWeight.bold),
+                  style: TextStyle(
+                      color: Theme.of(context).colorScheme.ipAddressColor,
+                      fontSize: 15,
+                      fontWeight: FontWeight.bold),
                 )
               else
                 const Text("No data found")

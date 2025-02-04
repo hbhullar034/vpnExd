@@ -51,7 +51,6 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   _vpnService.initialize();
   WidgetsBinding.instance.addObserver(MyAppLifecycleObserver());
-WidgetsFlutterBinding.ensureInitialized();
   await GetStorage.init(); // Initialize GetStorage
   Get.put(ThemeController()); // Register the controller
 
@@ -172,7 +171,6 @@ class _LandingPageState extends State<LandingPage> with WidgetsBindingObserver {
 
     // Navigate to VPN Dashboard after 3 seconds
     Future.delayed(const Duration(seconds: 3), () {
-      print("testt");
       Navigator.push(
         context,
         MaterialPageRoute(builder: (context) => const Vpndashboard()),

@@ -90,7 +90,7 @@ class _LoginPageState extends State<LoginPage> {
                         .dropdownColorBackground, // Background color
                     borderRadius: BorderRadius.circular(8), // Rounded corners
                   ),
-                  padding: EdgeInsets.symmetric(
+                  padding: const EdgeInsets.symmetric(
                       horizontal: 12), // Padding inside the box
                   child: TextField(
                     controller: _profileNameController,
@@ -127,7 +127,7 @@ class _LoginPageState extends State<LoginPage> {
                         .dropdownColorBackground, // Background color
                     borderRadius: BorderRadius.circular(8), // Rounded corners
                   ),
-                  padding: EdgeInsets.symmetric(
+                  padding: const EdgeInsets.symmetric(
                       horizontal: 12), // Padding inside the box
                   child: TextField(
                     controller: _usernameController,
@@ -165,7 +165,7 @@ class _LoginPageState extends State<LoginPage> {
                         .dropdownColorBackground, // Background color
                     borderRadius: BorderRadius.circular(8), // Rounded corners
                   ),
-                  padding: EdgeInsets.symmetric(
+                  padding: const EdgeInsets.symmetric(
                       horizontal: 12), // Padding inside the box
                   child: Stack(
                     alignment:

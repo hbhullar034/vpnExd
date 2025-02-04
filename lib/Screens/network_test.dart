@@ -20,7 +20,7 @@ class _NetworkTestScreenState extends State<NetworkTestScreen> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   final themeController = Get.find<ThemeController>();
   final ipData = IPDetails.fromJson({}).obs;
-  Offset _floatingButtonOffset =  Offset(300, 600); // Initial position of the button
+  Offset _floatingButtonOffset =  const Offset(300, 600); // Initial position of the button
 
   @override
   void initState() {
@@ -103,7 +103,7 @@ class _NetworkTestScreenState extends State<NetworkTestScreen> {
               NetworkCard(
                 data: NetworkData(
                   title: 'Timezone',
-                  subtitle: ipData.value.timezone ?? 'Fetching...',
+                  subtitle: ipData.value.timezone,
                   icon: const Icon(CupertinoIcons.time, color: Colors.green),
                 ),
               ),
@@ -129,7 +129,7 @@ class _NetworkTestScreenState extends State<NetworkTestScreen> {
               ),
               child: const Icon(CupertinoIcons.refresh),
             ),
-            childWhenDragging: SizedBox(), // Placeholder during drag
+            childWhenDragging: const SizedBox(), // Placeholder during drag
             onDragEnd: (details) {
               setState(() {
                 // Prevent the button from going outside the screen

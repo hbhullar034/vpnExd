@@ -126,7 +126,7 @@ class _ProtectedCardWidgetState extends State<ProtectedCardWidget> {
     });
   }
 
-  Widget _buildProtectedCardWithGraph() {
+  Widget _buildProtectedCardWithGraph(double screenWidth, double screenHeight) {
     // If no VPN is selected, show message
     if (widget.selectedIndex == null) {
       return Container(
@@ -155,9 +155,9 @@ class _ProtectedCardWidgetState extends State<ProtectedCardWidget> {
                 fontWeight: FontWeight.bold,
               ),
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: screenHeight * 0.04),
             SizedBox(
-              height: 90,
+              height: screenHeight * 0.1,
               child: buildBarChart({
                 "Mon": 0.0,
                 "Tue": 0.0,
@@ -201,9 +201,9 @@ class _ProtectedCardWidgetState extends State<ProtectedCardWidget> {
               "Time Protected (in Hours)",
               style: TextStyle(color: Theme.of(context).colorScheme.graphHeading, fontSize: 14),
             ),
-            const SizedBox(height: 16),
+             SizedBox(height:screenHeight * 0.05),
             SizedBox(
-              height: 90,
+              height: screenHeight * 0.1,
               child: buildBarChart(vpnUsageData!, maxY),
             ),
           ],
@@ -228,9 +228,9 @@ class _ProtectedCardWidgetState extends State<ProtectedCardWidget> {
             "Time Protected (in Hours)",
             style: TextStyle(color: Theme.of(context).colorScheme.graphHeading, fontSize: 14),
           ),
-          const SizedBox(height: 16),
+          SizedBox(height:screenHeight * 0.05),
           SizedBox(
-            height: 90,
+            height: screenHeight * 0.1,
             child: buildBarChart(vpnUsageData!, 2),
           ),
         ],
@@ -404,6 +404,8 @@ class _ProtectedCardWidgetState extends State<ProtectedCardWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return _buildProtectedCardWithGraph();
+     final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
+    return _buildProtectedCardWithGraph(screenWidth, screenHeight);
   }
 }

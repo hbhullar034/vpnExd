@@ -75,7 +75,7 @@ Future<void> _loadAppVersion() async {
            
             const SizedBox(height: 8),
              Text(
-              "Vdesk App is a secure and reliable VPN service that ensures your online privacy and anonymity. Easily connect to servers worldwide and enjoy a secure browsing experience.",
+              "vdeskVPN App is a secure and reliable VPN service that ensures your online privacy and anonymity. Easily connect to servers worldwide and enjoy a secure browsing experience.",
               style: TextStyle(fontSize: 16,color: Theme.of(context).colorScheme.themeTextColor),
               textAlign: TextAlign.center,
             ),
@@ -93,7 +93,7 @@ Future<void> _loadAppVersion() async {
               style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold, color: Colors.blue),
             ),
             const Text(
-              "By Vdesk Vpn",
+              "By vdeskVPN",
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.blue),
             ),
               ]
