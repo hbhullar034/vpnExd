@@ -26,16 +26,35 @@
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSApplicationQueriesSchemes</key>
+	<array>
+		<string>prefs</string>
+	</array>
+	<key>NSDocumentDirectory</key>
+	<array>
+		<string>$(HOME)/Documents</string>
+	</array>
+	<key>NSLocalNetworkUsageDescription</key>
+	<string>We need access to connect to the VPN</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>We need location access to establish a VPN connection.</string>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>We need location access to maintain a VPN connection.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>We need location access for VPN services.</string>
+	<key>NSVPNUsageDescription</key>
+	<string>We need access to configure VPN settings</string>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>external-accessory</string>
 		<string>fetch</string>
+		<string>network</string>
+		<string>network-extensions</string>
 		<string>processing</string>
+		<string>push-to-talk</string>
 		<string>remote-notification</string>
-		<string>networking</string>
-    <string>voip</string>
 	</array>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
@@ -54,13 +73,11 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
-	<key>com.apple.developer.networking.networkextension</key>
-<array>
-    <string>packet-tunnel-provider</string>
-    <string>app-proxy-provider</string>
-    <string>dns-proxy-provider</string>
-</array>
-  
-    
+	<key>com.apple.developer.networking.vpn.api</key>
+	<true/>
+	<key>com.apple.developer.networking.vpn.configuration</key>
+	<true/>
+	<key>com.apple.developer.networking.vpn.packet-tunnel</key>
+	<true/>
 </dict>
 </plist>

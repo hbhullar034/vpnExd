@@ -4,11 +4,15 @@
 <dict>
 	<key>com.apple.developer.networking.networkextension</key>
 	<array>
+		<string>app-proxy-provider</string>
+		<string>dns-proxy</string>
 		<string>packet-tunnel-provider</string>
 	</array>
+	<key>com.apple.developer.networking.wifi-info</key>
+	<true/>
 	<key>com.apple.security.application-groups</key>
 	<array>
-		<string>group.com.exd.vpn</string>
+		<string>group.com.vdesk</string>
 	</array>
 </dict>
 </plist>
