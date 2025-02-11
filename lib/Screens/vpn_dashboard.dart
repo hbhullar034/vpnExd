@@ -115,7 +115,6 @@ class _VPNPageState extends State<VPNPage> {
             _vpnService.initialize();
           }
         } catch (error) {
-          // ignore: use_build_context_synchronously
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text('Error: ${error.toString()}')),
           );
@@ -217,7 +216,6 @@ class _VPNPageState extends State<VPNPage> {
       _vpnService.setStatusCustom();
       await _disconnectVpn();
       // Handle errors gracefully
-      // ignore: use_build_context_synchronously
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Failed to connect: ${error.toString()}")),
       );
@@ -816,7 +814,6 @@ class _VPNPageState extends State<VPNPage> {
       // If the selected item was deleted, navigate to the dashboard
       if (selectedIndex == null) {
         Navigator.pushReplacement(
-          // ignore: use_build_context_synchronously
           context,
           MaterialPageRoute(builder: (context) => const Vpndashboard()),
         );
