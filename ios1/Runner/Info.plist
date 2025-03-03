@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CADisableMinimumFrameDurationOnPhone</key>
+	<true/>
+	<key>CFBundleDevelopmentRegion</key>
+	<string>$(DEVELOPMENT_LANGUAGE)</string>
+	<key>CFBundleDisplayName</key>
+	<string>Openvpn App</string>
+	<key>CFBundleExecutable</key>
+	<string>$(EXECUTABLE_NAME)</string>
+	<key>CFBundleIdentifier</key>
+	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
+	<key>CFBundleInfoDictionaryVersion</key>
+	<string>6.0</string>
+	<key>CFBundleName</key>
+	<string>openvpn_app</string>
+	<key>CFBundlePackageType</key>
+	<string>APPL</string>
+	<key>CFBundleShortVersionString</key>
+	<string>$(FLUTTER_BUILD_NAME)</string>
+	<key>CFBundleSignature</key>
+	<string>????</string>
+	<key>CFBundleVersion</key>
+	<string>$(FLUTTER_BUILD_NUMBER)</string>
+	<key>LSRequiresIPhoneOS</key>
+	<true/>
+	<key>NEVPNExtensionPoint</key>
+	<dict>
+		<key>NEProviderBundleIdentifier</key>
+		<string>com.vdesk.VdeskExtension</string>
+	</dict>
+	<key>NSAppTransportSecurity</key>
+	<dict>
+		<key>NSAllowsArbitraryLoads</key>
+		<true/>
+	</dict>
+	<key>NSApplicationQueriesSchemes</key>
+	<array>
+		<string>prefs</string>
+	</array>
+	<key>NSDocumentDirectory</key>
+	<array>
+		<string>$(HOME)/Documents</string>
+	</array>
+	<key>NSExtensionActivationRule</key>
+	<dict/>
+	<key>NSExtensionPointIdentifier</key>
+	<string>com.apple.network-extension.packet-tunnel-provider</string>
+	<key>NSLocalNetworkUsageDescription</key>
+	<string>We need access to connect to the VPN</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>We need location access to establish a VPN connection.</string>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>We need location access to maintain a VPN connection.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>We need location access for VPN services.</string>
+	<key>NSVPNUsageDescription</key>
+	<string>We need access to configure VPN settings</string>
+	<key>UIApplicationSupportsIndirectInputEvents</key>
+	<true/>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>network-authentication</string>
+		<string>external-accessory</string>
+		<string>fetch</string>
+		<string>network</string>
+		<string>network-extensions</string>
+		<string>processing</string>
+		<string>push-to-talk</string>
+		<string>remote-notification</string>
+	</array>
+	<key>UILaunchStoryboardName</key>
+	<string>LaunchScreen</string>
+	<key>UIMainStoryboardFile</key>
+	<string>Main</string>
+	<key>UISupportedInterfaceOrientations</key>
+	<array>
+		<string>UIInterfaceOrientationPortrait</string>
+		<string>UIInterfaceOrientationLandscapeLeft</string>
+		<string>UIInterfaceOrientationLandscapeRight</string>
+	</array>
+	<key>UISupportedInterfaceOrientations~ipad</key>
+	<array>
+		<string>UIInterfaceOrientationPortrait</string>
+		<string>UIInterfaceOrientationPortraitUpsideDown</string>
+		<string>UIInterfaceOrientationLandscapeLeft</string>
+		<string>UIInterfaceOrientationLandscapeRight</string>
+	</array>
+	<key>UIVPNPlugin</key>
+	<string>YES</string>
+	<key>UTImportedTypeDeclarations</key>
+	<array>
+		<dict/>
+	</array>
+	<key>com.apple.developer.networking.vpn.api</key>
+	<true/>
+	<key>com.apple.developer.networking.vpn.configuration</key>
+	<true/>
+	<key>com.apple.developer.networking.vpn.packet-tunnel</key>
+	<true/>
+</dict>
+</plist>

@@ -2,20 +2,23 @@
 
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:http/http.dart' as http;
 import 'package:openvpn_app/Screens/graph.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
 import '../controller/theme_controller.dart';
 import '../main.dart';
-import '../services/network_service.dart';
-import 'common_app_bar.dart';
-import 'confirmation_dialog.dart';
-import 'common_app_bar_with_drawer.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import '../models/vpn_status_model.dart';
 import '../models/vpn_data_model.dart';
-import 'package:http/http.dart' as http;
+import '../models/vpn_status_model.dart';
+import '../services/network_service.dart';
 import '../services/vpn_service.dart';
+import 'common_app_bar.dart';
+import 'common_app_bar_with_drawer.dart';
+import 'confirmation_dialog.dart';
 import 'login_page.dart';
 import 'vpn_stats_page.dart';
 import 'vpn_url_screen.dart';
@@ -64,6 +67,11 @@ class _VPNPageState extends State<VPNPage> {
   String? cachedIpAddress; //store ip address
   bool _isDialogOpen = false;
   final themeController = Get.find<ThemeController>();
+  // Heuristic for tablets, adjust as needed
+    bool isAndroid = Platform.isAndroid;
+    bool isIOS = Platform.isIOS;
+    bool isIpad = false; // Assume iPhone initially for iOS
+    bool android = false;
 
   @override
   void initState() {
@@ -210,15 +218,16 @@ class _VPNPageState extends State<VPNPage> {
       final OpenVpnStatus? status = _vpnService.getCurrentStatus();
       if (status?.stage != 'connected') {
         throw Exception(
-            "VPN failed to connect. Status: ${status?.stage ?? 'unknown'}");
+            // "VPN failed to connect. Status: ${status?.stage ?? 'unknown'}"
+            );
       }
     } catch (error) {
-      _vpnService.setStatusCustom();
-      await _disconnectVpn();
+      // _vpnService.setStatusCustom();
+      //await _disconnectVpn();
       // Handle errors gracefully
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Failed to connect: ${error.toString()}")),
-      );
+      // ScaffoldMessenger.of(context).showSnackBar(
+      //   SnackBar(content: Text("Failed to connect: ${error.toString()}")),
+      // );
     }
   }
 
@@ -355,6 +364,10 @@ class _VPNPageState extends State<VPNPage> {
     });
   }
 
+ 
+
+
+ 
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
@@ -362,7 +375,6 @@ class _VPNPageState extends State<VPNPage> {
     mq = MediaQuery.sizeOf(context);
     // Get the current orientation (portrait or landscape)
     final orientation = MediaQuery.of(context).orientation;
-
     return Scaffold(
       key: _scaffoldKey, // Assign the GlobalKey to the Scaffold
       extendBodyBehindAppBar: true,
@@ -457,6 +469,18 @@ class _VPNPageState extends State<VPNPage> {
 
   Widget _buildPortraitLayout(
       double screenWidth, double screenHeight, String stageResult, status) {
+
+bool isTablet =
+        screenWidth > 600; 
+   
+   
+    if (isTablet) {
+      isIpad = true; // Likely an iPad if it's iOS and has tablet-like width
+    } else if (isAndroid) {
+      android = true;
+    }
+
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
@@ -485,11 +509,13 @@ class _VPNPageState extends State<VPNPage> {
           ),
         ),
 
+
         Text(
           "Connected Time ",
           style: TextStyle(
               color: Theme.of(context).colorScheme.connectingColor,
-              fontSize: 18),
+              fontSize:isIpad ? 28 : 18)
+                   /* In android and iphone fontSize is 18 and ipad fontSize is 28 */
         ),
         //const SizedBox(height: 5),
         ValueListenableBuilder<OpenVpnStatus?>(
@@ -499,7 +525,8 @@ class _VPNPageState extends State<VPNPage> {
               _formattedDuration(status),
               style: TextStyle(
                 color: Theme.of(context).colorScheme.connectingColor,
-                fontSize: 32,
+                fontSize: isIpad ? 38 : 32,
+                /* In android and iphone fontSize is 32 and ipad fontSize is 38 */
                 fontWeight: FontWeight.bold,
               ),
             );
@@ -512,13 +539,15 @@ class _VPNPageState extends State<VPNPage> {
           child: Transform.scale(
             scale: _scaleFactor, // Apply scale factor to the whole container
             child: Container(
-              width: 230, // Keep the base width
-              height: 230,
+              width: isIpad ? 430 : 230, // Keep the base width
+              height: isIpad ? 330 : 230,
+              /* In android and iphone height and width is 230 230 and ipad height and width is 330 430 */
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 border: Border.all(
                   color: getBorderColor(stageResult),
-                  width: 12,
+                  width: isIpad ? 15 : 12,
+                  /* In android and iphone width is 12 and ipad width is 15  */
                 ),
               ),
               child: InkWell(
@@ -590,7 +619,8 @@ class _VPNPageState extends State<VPNPage> {
                               : stageResult == 'connected'
                                   ? Colors.green
                                   : Colors.red,
-                          size: 60,
+                          size:
+                              isIpad ? 80 : 60, /* In android and iphone size is 60 and ipad size is 80 */
                         ),
                         SizedBox(height: screenHeight * 0.04),
                         Text(
@@ -599,7 +629,8 @@ class _VPNPageState extends State<VPNPage> {
                             color: Theme.of(context)
                                 .colorScheme
                                 .ipAddressNameColor,
-                            fontSize: 15,
+                            fontSize:isIpad ? 25 : 15
+                                , /* In android and iphone fontSize is 15 and ipad fontSize is 25 */
                           ),
                           textAlign: TextAlign.center,
                         ),
@@ -620,13 +651,14 @@ class _VPNPageState extends State<VPNPage> {
             controller: _scrollController,
             child: Column(
               children: [
-                const SizedBox(height: 50),
+               SizedBox(height: isTablet ? 105 : 50),
+                /* In android and iphone height is 50 and ipad height is 105 */
                 // Stack of VPN Info and other widgets
                 Stack(
                   children: <Widget>[
                     Container(
                       margin: const EdgeInsets.only(
-                          left: 4, right: 4, top: 0, bottom: 0),
+                          left: 7, right: 7, top: 0, bottom: 0),
                       padding: const EdgeInsets.only(
                           left: 20, right: 20, top: 0, bottom: 0),
                       child: ProtectedCardWidget(selectedIndex: selectedIndex),
@@ -636,7 +668,7 @@ class _VPNPageState extends State<VPNPage> {
 
                 // Additional stats and content
 
-                 SizedBox(height: screenHeight * 0.04),
+                SizedBox(height: screenHeight * 0.04),
               ],
             ),
           ),

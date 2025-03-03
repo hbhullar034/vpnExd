@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+	<dict>
+
+		<key>NSExtension</key>
+		<dict>
+			<key>NSExtensionPointIdentifier</key>
+			<string>com.apple.networkextension.packet-tunnel</string>
+			<key>NSExtensionPrincipalClass</key>
+			<string>PacketTunnelProvider</string>
+		</dict>
+		<key>UIBackgroundModes</key>
+<array>
+    <string>network-authentication</string>
+    <string>networking</string>
+</array>
+
+<key>CFBundlePackageType</key>
+<string>XPC!</string>
+
+<key>LSApplicationQueriesSchemes</key>
+<array>
+    <string>openvpn</string>
+</array>
+
+<key>com.apple.security.application-groups</key>
+<array>
+    <string>group.com.vdesk</string>
+</array>
+	</dict>
+</plist>

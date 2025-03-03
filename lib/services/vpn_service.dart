@@ -12,6 +12,7 @@ import 'vpn_usage_service.dart';
 class VpnService {
   // Singleton instance
   static final VpnService _instance = VpnService._internal();
+  final OpenVpnService vpnService = OpenVpnService();
 
   // Factory constructor
   factory VpnService() {
@@ -22,7 +23,7 @@ class VpnService {
   VpnService._internal();
   final OpenVpnService _vpnService = OpenVpnService();
   final VpnUsageService _vpnUsageService = VpnUsageService();
-  
+
   Timer? _statusTimer;
   Timer? _vpnCheckTimer;
   String? connectingIndex;
@@ -43,7 +44,6 @@ class VpnService {
 
   // Load previously saved VPN connection data (index and VPN data)
   Future<void> _loadVpnData() async {
-    
     final prefs = await SharedPreferences.getInstance();
     String? savedIndex = prefs.getString('connectingIndex');
     if (savedIndex != null) {
@@ -53,7 +53,7 @@ class VpnService {
         _statusTimer!.cancel();
         _statusTimer = null; // Clear the reference to prevent reuse
       }
-       startVpnCheck();
+      startVpnCheck();
       _monitorVpnStatus();
       _vpnUsageService.updateVpnUsageWithSplitting(connectingIndex!);
       VpnData vpnData = await getVpnDataByIndex(savedIndex);
@@ -63,46 +63,48 @@ class VpnService {
 
   // Monitor VPN connection status and handle duration tracking
   void _monitorVpnStatus() {
-    if (_statusTimer != null && _statusTimer!.isActive) {
-      _statusTimer!.cancel();
-      _statusTimer = null; // Clear the reference to prevent reuse
-    }
-    _statusTimer = Timer.periodic(const Duration(seconds: 1), (timer) async {
-      final OpenVpnStatus? currentStatus = _vpnService.getCurrentStatus();
-      if (currentStatus != null) {
-        _currentStatusNotifier.value = currentStatus;
-        // Call setState to force UI rebuild if needed
+    try {
+      if (_statusTimer != null && _statusTimer!.isActive) {
+        _statusTimer!.cancel();
+        _statusTimer = null; // Clear the reference to prevent reuse
       }
-    });
+      _statusTimer = Timer.periodic(const Duration(seconds: 1), (timer) async {
+        final OpenVpnStatus? currentStatus = _vpnService.getCurrentStatus();
+        if (currentStatus != null) {
+          _currentStatusNotifier.value = currentStatus;
+          // Call setState to force UI rebuild if needed
+        }
+      });
+    } catch (ex) {
+      vpnService.saveLog("_monitorVpnStatus method : error $ex");
+    }
   }
 
   // Connect to VPN using the given VPN data
   Future<void> connectVpn(VpnData vpnData, String id) async {
-    try{
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('connectingIndex', id);
-    connectingIndex = id;
-    isConnecting = true;
-    startVpnCheck();
-    _monitorVpnStatus();
-    _vpnUsageService.storeTimeStart();
-    await _vpnService.connect(vpnData);
-    }
-     catch (error) {
-      
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('connectingIndex', id);
+      connectingIndex = id;
+      isConnecting = true;
+      startVpnCheck();
+      _monitorVpnStatus();
+      _vpnUsageService.storeTimeStart();
+      await _vpnService.connect(vpnData);
+    } catch (error) {
+      vpnService.saveLog("connectVpn method : error $error");
       debugPrint("testtt vpn network");
       final prefs = await SharedPreferences.getInstance();
       await prefs.remove('startTime');
-     await disconnectVpn();
+      await disconnectVpn();
       // Handle errors gracefully
-     
-      
     }
   }
 
- void setStatusCustom(){
-isConnecting= false;
- }
+  void setStatusCustom() {
+    isConnecting = false;
+  }
+
   Future<void> disconnectVpn() async {
     if (connectingIndex == null) return;
     await _vpnUsageService.updateVpnUsageWithSplitting(connectingIndex!);
@@ -126,22 +128,28 @@ isConnecting= false;
       await _vpnService.disconnect(); // Disconnect VPN securely
     } catch (e) {
       debugPrint("Error disconnecting VPN: $e");
+        vpnService.saveLog("disconnectVpn method : error $e");
     }
   }
 
   // Periodic VPN check to ensure the connection is still active
   void startVpnCheck() {
-    _vpnCheckTimer = Timer.periodic(const Duration(seconds: 15), (timer) async {
-      if (_currentStatusNotifier.value?.stage != 'connected') {
-        final prefs = await SharedPreferences.getInstance();
-        await prefs.remove('startTime');
-        disconnectVpn();
-      }
-      if (_vpnCheckTimer != null && _vpnCheckTimer!.isActive) {
-        _vpnCheckTimer!.cancel();
-        _vpnCheckTimer = null; // Clear the reference
-      }
-    });
+    try {
+      _vpnCheckTimer =
+          Timer.periodic(const Duration(seconds: 15), (timer) async {
+        if (_currentStatusNotifier.value?.stage != 'connected') {
+          final prefs = await SharedPreferences.getInstance();
+          await prefs.remove('startTime');
+          disconnectVpn();
+        }
+        if (_vpnCheckTimer != null && _vpnCheckTimer!.isActive) {
+          _vpnCheckTimer!.cancel();
+          _vpnCheckTimer = null; // Clear the reference
+        }
+      });
+    } catch (e) {
+      vpnService.saveLog("startVpnCheck method : error $e");
+    }
   }
 
   // Get VPN data by index

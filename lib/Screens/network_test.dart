@@ -1,11 +1,12 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+
+import '../controller/theme_controller.dart';
 import '../models/ips_detail_model.dart';
 import '../models/network_data.dart';
 import '../services/network_type_service.dart';
 import '../widgets/network_widgets.dart';
-import '../controller/theme_controller.dart';
 import 'common_app_bar.dart';
 import 'common_app_bar_with_drawer.dart';
 
